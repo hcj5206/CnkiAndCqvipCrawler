@@ -1,0 +1,17 @@
+{
+	authors: [],			// 作者
+	affiliation: [],		// 题目
+	title: string,			// 单位
+	publication: string,	// 出版物
+	keywords: string[],		// 关键词
+	abstract: string,		// 摘要
+	year: number,			// 出版年份
+	volume: number,			// 卷
+	issue: number,			// 期
+	startPage: number,		// 起始页码
+	endPage: number,		// 终止页码
+	doi: string,			// DOI
+	uri: string,			// 全文链接
+	sponser: string[],		// 资助项目
+	type: string			// 文献类型，参考引文类型
+}
