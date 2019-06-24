@@ -1,7 +1,7 @@
 # 使用说明
 2019年6月24日  已打包成EXE 1、通过双击**demo\dist\Cqvip_main.exe**  既可，无需配置相关环境和库文件  
 1. 其中**demo\dist\Config.ini**中： 
-    ```
+    ``` ini
     [DB] ;数据库相关参数设定，只需新建一个cqvipcrawler数据库即可，或者执行对应的SQL语句
     dbname = cqvipcrawler ;数据库名称这个得新建
     dbhost = 127.0.0.1 
