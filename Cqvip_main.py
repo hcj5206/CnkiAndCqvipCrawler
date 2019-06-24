@@ -309,7 +309,7 @@ def InsetDbbyDict(table, Dict):
     filter(str.isdigit, starttime)
     filter(str.isdigit, endtime)
 
-    if int(_year) in range(int(starttime),int(endtime)):
+    if int(_year) in range(int(starttime),int(endtime)+1):
         for key in Dict.keys():
             COLstr = COLstr + ' ' + '`' + key + '`,'
             ROWstr = (ROWstr + '"%s"' + ',') % (
