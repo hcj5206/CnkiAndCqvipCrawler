@@ -1,7 +1,7 @@
 # 使用说明
 2019年6月24日  已打包成EXE 1、通过双击**demo\dist\Cqvip_main.exe**  既可，无需配置相关环境和库文件  
 ## 注意：  
-别直接用window的文本编辑器直接打开Config.ini，window文本编辑器编码格式默认是ANSI，会改变配置文件的编码格式，所以请用Notepad++
+别直接用window的文本编辑器直接打开Config.ini，window文本编辑器编码格式默认是有BOM，会改变配置文件的编码格式，所以请用Notepad++
 1. 其中**demo\dist\Config.ini**中： 
     ``` ini
     [DB] ;数据库相关参数设定，只需新建一个cqvipcrawler数据库即可，或者执行对应的SQL语句
