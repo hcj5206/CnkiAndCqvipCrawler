@@ -9,18 +9,21 @@ import pymysql as MySQLdb
 
 
 from DBUtils.PooledDB import PooledDB
-DBNAME = "cqvipcrawler"
-DBHOST = "127.0.0.1"
-DBUSER = "root"
-DBPWD = "12345678"
-DBCHARSET = "utf8"
-DBPORT = 3306
+
+from HCJ_Buff_Control import Read_buff
+
+
+DBNAME = Read_buff(file_buff="Config.ini", settion="DB",info='DBNAME')
+DBHOST = Read_buff(file_buff="Config.ini", settion="DB",info='DBHOST')
+DBUSER = Read_buff(file_buff="Config.ini", settion="DB",info='DBUSER')
+DBPWD = Read_buff(file_buff="Config.ini", settion="DB",info='DBPWD')
+DBCHARSET =Read_buff(file_buff="Config.ini", settion="DB",info='DBCHARSET')
+DBPORT =Read_buff(file_buff="Config.ini", settion="DB",info='DBPORT')
 
 
 class HCJ_MySQL:
     pool = None
     limit_count = 20  # 最低预启动数据库连接数量
-
     def __init__(self,log=None,dbname=None,dbhost=None):
         if dbname is None:
             self._dbname = DBNAME
@@ -39,7 +42,7 @@ class HCJ_MySQL:
         self.is_connect_first = False
         try:
             self.pool = PooledDB(MySQLdb, self.limit_count, host=self._dbhost, user=self._dbuser, passwd=self._dbpassword, db=self._dbname,
-                             port=self._dbport, charset=self._dbcharset, use_unicode=True)
+                         port=self._dbport, charset=self._dbcharset, use_unicode=True)
         except:
             if self._logger != None:
                 self._logger.warn("无法连接数据库")
@@ -60,13 +63,7 @@ class HCJ_MySQL:
             conn.close()
         except Exception as data:
             res=False
-            if data[0] == 2006:  # 掉线
-                return res
-            if self._logger!=None:
-                self._logger.debug("query database exception,sql= %s,%s" % (sql, data))
-                self._logger.warn("query database exception %s" % (data))
-            else:
-                print("query database exception,sql= %s,%s" % (sql, data))
+            print("query database exception,sql= %s,%s" % (sql, data))
         return res
     def do_sql_one(self, sql):
         res = ''
