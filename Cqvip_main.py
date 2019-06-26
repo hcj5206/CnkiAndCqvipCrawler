@@ -457,6 +457,7 @@ def init_main():
 
 
 def main1(argv):
+    #
     import sys, getopt
     Input = SearchMode = StartTime = EndTime = StartPage = ""
     try:
@@ -481,15 +482,17 @@ def main1(argv):
     print('输入模式为：', SearchMode)
     print('输入开始时间为：', StartTime)
     print('输入结束时间为：', EndTime)
-
-
-if __name__ == '__main__':
+    #
+    #参数化输入
     # parser = argparse.ArgumentParser(description="Spider for gourmet shops in meituan.")
     # parser.add_argument('-ct', dest='cityname', help='The city you choose to crawl.', default='杭州')
     # parser.add_argument('-p', dest='maxpages', help='Max pages to crawl.', default=50, type=int)
     # args = parser.parse_args()
     # cityname = args.cityname
     # maxpages = args.maxpages
+
+if __name__ == '__main__':
+
     SearchDBName = 'Cqvip'
     multiprocessing.freeze_support()  # 多进程打包的话必须加上
     db = HCJ_MySQL()
