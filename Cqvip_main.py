@@ -78,11 +78,11 @@ class Parse(threading.Thread):
         _Paper['url'] = url  # 获得【链接】
         _Paper['title'] = deff.find('h1').text  # 获得【标题】
         str1 = deff.find('strong').text.split('\xa0\xa0')
-        _Paper['publication'] = str1[0].split('|')[0]  # 获得【单位】
+        _Paper['publication'] = re.search(r'《(.*)》', str1[0].split('|')[0]).group()  # 获得【单位】
         _Paper['authors'] = str1[0].split('|')[1]  # 获得【作者】
         _Paper['unit'] = str1[1]  # 获得【出版社】
         deff2 = _soup.select('table', class_="datainfo f14")
-        _Paper['abstract'] = deff2[0].text.replace('\n', '').split('：', 1)[1]  # 获得【摘要】
+        _Paper['abstract'] = deff2[0].text.replace('\n', '').split('：', 1)[1].split('：')[1]  # 获得【摘要】
         p = deff2[1].text
         _Paper['type'] = deff2[1].text.split('【分　类】', 1)[1].split('【关键词】')[0].replace('\n', '')  # 获得【分类】
         _Paper['keywords'] = deff2[1].text.split('【关键词】', 1)[1].split('【出　处】')[0].replace('\n', '')  # 获得【关键词】
@@ -93,13 +93,14 @@ class Parse(threading.Thread):
             if st:
                 if "年" in st:
                     if '》' in st:
-                        _Paper['year'] = st.split('》')[1]  # 获得【出版年份】
+                        _Paper['year']=st.split('》')[1] # 获得【日期】只要数字
                     else:
                         _Paper['year'] = st
+                    _Paper['year']= re.search(r'\d+', _Paper['year']).group()
                 if "共" not in st and "页" in st:
-                    _Paper['pagecode'] = st  # 获得【页码】
+                    _Paper['pagecode'] = st.split('页')[0]if '页' in st else st # 获得【页码】
                 if "期" in st:
-                    _Paper['issue'] = st  # 获得【期】
+                    _Paper['issue'] = re.search(r'\d+', st).group()  # 获得【期】
         # print(_Paper)
         InsetDbbyDict("`cqvipcrawler`.`result`", _Paper)
 
@@ -215,38 +216,6 @@ class Cqvip_Crawler:
                     str(page), str(k), str(page) + '-' + str(k), url)
                 row = self.db.insert(sql)  # 插入
 
-    def GetDicPaper(self, _soup=None, _url=None):
-        _Paper = InitDict()
-        deff = _soup.find('span', class_="detailtitle")
-        _Paper['url'] = _url  # 获得【链接】
-        try:
-            _Paper['title'] = deff.find('h1').text  # 获得【标题】
-            str1 = deff.find('strong').text.split('\xa0\xa0')
-            _Paper['unit'] = str1[0].split('|')[0]  # 获得【单位】
-            _Paper['authors'] = str1[0].split('|')[1]  # 获得【作者】
-            _Paper['publication'] = str1[1]  # 获得【出版社】
-            deff2 = _soup.select('table', class_="datainfo f14")
-            _Paper['abstract'] = deff2[0].text.replace('\n', '').split('：', 1)[1]  # 获得【摘要】
-            p = deff2[1].text
-            _Paper['type'] = deff2[1].text.split('【分　类】', 1)[1].split('【关键词】')[0].replace('\n', '')  # 获得【分类】
-            _Paper['keywords'] = deff2[1].text.split('【关键词】', 1)[1].split('【出　处】')[0].replace('\n', '')  # 获得【关键词】
-            StrComeFrom = deff2[1].text.split('【出　处】', 1)[1].split('【收　录】')[0].replace('\n', '')
-            Strlist = re.split(r"[;,\s]\s*", StrComeFrom)
-            t = 0
-            for st in Strlist:
-                if st:
-                    if "年" in st:
-                        if '》' in st:
-                            _Paper['year'] = st.split('》')[1]  # 获得【出版年份】
-                        else:
-                            _Paper['year'] = st
-                    if "共" not in st and "页" in st:
-                        _Paper['pagecode'] = st  # 获得【页码】
-                    if "期" in st:
-                        _Paper['issue'] = st  # 获得【期】
-        except:
-            print("解析链接出现错误")
-        return _Paper
 
     def GetUrlFromDb(self, num=20):
         sql = "select `PageIndex`,`Url` from `databuff` where `State`in (0,-10) ORDER BY `Page` ASC, `PageNum` limit %s " % num
@@ -260,39 +229,11 @@ class Cqvip_Crawler:
         else:
             return ""
 
-    def CqvipMain(self):
-
-        LoopTimer(0.1, self.GetPaperResultFromUrl).start()
-
-    def GetPaperResultFromUrl(self):
-        '''
-        通过GetUrlFromDb获得20个链接，然后进行爬取，爬取后写入数据库
-        :return:
-        '''
-        UrlList = self.GetUrlFromDb(num=20)  # 获取20个
-        threading.Thread(target=self.ThreadGetAndWrite, args=(UrlList,)).start()
-
-    def ThreadGetAndWrite(self, UrlList):
-        print("线程开始")
-        if len(UrlList) > 0:
-            startTime = time.time()
-            for i in range(len(UrlList)):
-                try:
-                    soup = self.GetSoup(url=UrlList[i])
-                    Paper = self.GetDicPaper(_soup=soup, _url=UrlList[i])
-                    InsetDbbyDict("`cqvipcrawler`.`result`", Paper)
-                except:
-                    print("失败")
-                    pass
-            print("成功插入%s,耗时%s" % (len(UrlList), (time.time() - startTime)))
-            time.sleep(0.05)
-        else:
-            pass
 
 
 def InitDict():
     dir = {'url': '', 'title': '', 'authors': '', 'unit': '', 'publication': '', 'keywords': '', 'abstract': '',
-           'year': '', 'volume': '', 'issue': '', 'pagecode': '', 'doi': '', 'string': '', 'sponser': '', 'type': ''}
+           'year': '', 'volume': '', 'issue': '', 'pagecode': '', 'doi': '', 'sponser': '', 'type': ''}
     return dir
 
 
@@ -362,13 +303,12 @@ def CreatResultDBTable(TableName):
           `unit` varchar(200) DEFAULT NULL,\
           `publication` varchar(200) DEFAULT NULL,\
           `keywords` varchar(200) DEFAULT NULL,\
-          `abstract` varchar(200) DEFAULT NULL,\
+          `abstract` text DEFAULT NULL,\
           `year` varchar(200) DEFAULT NULL,\
           `volume` varchar(200) DEFAULT NULL,\
           `issue` varchar(200) DEFAULT NULL,\
           `pagecode` varchar(200) DEFAULT NULL,\
           `doi` varchar(200) DEFAULT NULL,\
-          `string` varchar(200) DEFAULT NULL,\
           `sponser` varchar(200) DEFAULT NULL,\
           `type` varchar(200) DEFAULT NULL,\
           PRIMARY KEY (`id`)\
@@ -483,7 +423,7 @@ def main1(argv):
     print('输入开始时间为：', StartTime)
     print('输入结束时间为：', EndTime)
     #
-    #参数化输入
+    #参数化输入命令行
     # parser = argparse.ArgumentParser(description="Spider for gourmet shops in meituan.")
     # parser.add_argument('-ct', dest='cityname', help='The city you choose to crawl.', default='杭州')
     # parser.add_argument('-p', dest='maxpages', help='Max pages to crawl.', default=50, type=int)
@@ -499,3 +439,4 @@ if __name__ == '__main__':
     Cqvip = Cqvip_Crawler(db=db)
     init_main()
     main()
+#刚才界面的那个显示程序呢

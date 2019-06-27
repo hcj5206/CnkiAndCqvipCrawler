@@ -231,38 +231,6 @@ class Cqvip_Crawler:
                 sql="INSERT INTO `cqvipcrawler`.`databuff` (`Page`, `PageNum`,`PageIndex`, `Url`) VALUES ('%s', '%s', '%s','%s');\n" % (
                     str(page), str(k), str(page) + '-' + str(k), url)
                 row = self.db.insert(sql) # 插入
-    def GetDicPaper(self,_soup=None,_url=None):
-        _Paper = InitDict()
-        deff = _soup.find('span', class_="detailtitle")
-        _Paper['url'] = _url  # 获得【链接】
-        try:
-            _Paper['title'] = deff.find('h1').text  # 获得【标题】
-            str1 = deff.find('strong').text.split('\xa0\xa0')
-            _Paper['unit'] = str1[0].split('|')[0]  # 获得【单位】
-            _Paper['authors'] = str1[0].split('|')[1]  # 获得【作者】
-            _Paper['publication'] = str1[1]  # 获得【出版社】
-            deff2 = _soup.select('table', class_="datainfo f14")
-            _Paper['abstract'] = deff2[0].text.replace('\n', '').split('：', 1)[1]  # 获得【摘要】
-            p = deff2[1].text
-            _Paper['type'] = deff2[1].text.split('【分　类】', 1)[1].split('【关键词】')[0].replace('\n', '')  # 获得【分类】
-            _Paper['keywords'] = deff2[1].text.split('【关键词】', 1)[1].split('【出　处】')[0].replace('\n', '')  # 获得【关键词】
-            StrComeFrom = deff2[1].text.split('【出　处】', 1)[1].split('【收　录】')[0].replace('\n', '')
-            Strlist = re.split(r"[;,\s]\s*", StrComeFrom)
-            t = 0
-            for st in Strlist:
-                if st:
-                    if "年" in st:
-                        if '》' in st:
-                            _Paper['year'] = st.split('》')[1]  # 获得【出版年份】
-                        else:
-                            _Paper['year'] = st
-                    if "共" not in st and "页" in st:
-                        _Paper['pagecode'] = st  # 获得【页码】
-                    if "期" in st:
-                        _Paper['issue'] = st  # 获得【期】
-        except:
-            print("解析链接出现错误")
-        return _Paper
     def GetUrlFromDb(self,num=20):
         sql="select `PageIndex`,`Url` from `databuff` where `State`in (0,-10) ORDER BY `Page` ASC, `PageNum` limit %s "%num
         _rows=self.db.do_sql(sql)
@@ -274,33 +242,7 @@ class Cqvip_Crawler:
                 return _UrlList
         else:
             return ""
-    def CqvipMain(self):
 
-        LoopTimer(0.1, self.GetPaperResultFromUrl).start()
-    def GetPaperResultFromUrl(self):
-        '''
-        通过GetUrlFromDb获得20个链接，然后进行爬取，爬取后写入数据库
-        :return:
-        '''
-        UrlList = self.GetUrlFromDb(num=20)  # 获取20个
-        threading.Thread(target=self.ThreadGetAndWrite, args=(UrlList,)).start()
-
-    def ThreadGetAndWrite(self,UrlList):
-        print("线程开始")
-        if   len(UrlList)>0:
-            startTime = time.time()
-            for i in range(len(UrlList)):
-                try:
-                    soup = self.GetSoup(url=UrlList[i])
-                    Paper = self.GetDicPaper(_soup=soup, _url=UrlList[i])
-                    InsetDbbyDict("`cqvipcrawler`.`result`", Paper)
-                except:
-                    print("失败")
-                    pass
-            print("成功插入%s,耗时%s"%(len(UrlList),(time.time() - startTime)))
-            time.sleep(0.05)
-        else:
-            pass
 def InitDict():
     dir = {'url' :'', 'title' :'','authors':'','unit' :'','publication' :'','keywords' :'','abstract' :'','year' :'','volume' :'','issue' :'','pagecode' :'','doi' :'','string' :'','sponser' :'','type' :''}
     return dir
@@ -327,17 +269,27 @@ def InsetDbbyDict(table,Dict):
 
 class PaperAll(object):
     pass
+def CreatUrlBuffTable(TableName):
+    CreatDBTableSql = '\
+            CREATE TABLE IF NOT EXISTS `%s` (\
+            `PageIndex` VARCHAR(50) NULL DEFAULT NULL,\
+	        `Page` INT(11) NULL DEFAULT NULL,\
+	        `PageNum` INT(11) NULL DEFAULT NULL,\
+	        `Url` VARCHAR(200) NULL DEFAULT NULL,\
+	        `State` INT(11) NULL DEFAULT \'0\'  COMMENT \'-5 日期不对 -10 出现错误 0 初始 10 处理中 20 处理结束\',\
+	        `Datetime` DATETIME NULL DEFAULT CURRENT_TIMESTAMP,\
+	        UNIQUE INDEX `PageIndex` (`PageIndex`)\
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8; ' % TableName
+    dict_result = db.upda_sql(CreatDBTableSql)
+    if not dict_result:
+        print("创建出现问题")
 
 def CreatResultDBTable(TableName):
     '''
     创建结构数据库表单，如果不存在就创建
     :return:
     '''
-    str = ""
-    Dict=InitDict()
-    for key in Dict.keys():
-        str+="`%s` varchar(200) DEFAULT NULL,"%key
-    CreatDBTableSql='\
+    CreatDBTableSql = '\
         CREATE TABLE IF NOT EXISTS `%s` (\
           `id` int(11) unsigned NOT NULL AUTO_INCREMENT,\
           `url` varchar(200) DEFAULT NULL, \
@@ -346,20 +298,21 @@ def CreatResultDBTable(TableName):
           `unit` varchar(200) DEFAULT NULL,\
           `publication` varchar(200) DEFAULT NULL,\
           `keywords` varchar(200) DEFAULT NULL,\
-          `abstract` varchar(200) DEFAULT NULL,\
+          `abstract` text DEFAULT NULL,\
           `year` varchar(200) DEFAULT NULL,\
           `volume` varchar(200) DEFAULT NULL,\
           `issue` varchar(200) DEFAULT NULL,\
           `pagecode` varchar(200) DEFAULT NULL,\
           `doi` varchar(200) DEFAULT NULL,\
-          `string` varchar(200) DEFAULT NULL,\
           `sponser` varchar(200) DEFAULT NULL,\
           `type` varchar(200) DEFAULT NULL,\
           PRIMARY KEY (`id`)\
-        ) ENGINE=InnoDB DEFAULT CHARSET=latin1; '%TableName
-    dict_result= db.upda_sql(CreatDBTableSql)
-    if  not dict_result:
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8; ' % TableName
+    dict_result = db.upda_sql(CreatDBTableSql)
+    if not dict_result:
         print("创建出现问题")
+
+
 class ClockProcess(multiprocessing.Process):
     def __init__(self, interval):
         multiprocessing.Process.__init__(self)
