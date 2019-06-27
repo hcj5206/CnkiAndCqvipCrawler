@@ -21,12 +21,19 @@ from HCJ_Buff_Control import Read_buff,Write_buff
 from HCJ_DB_Helper import HCJ_MySQL
 
 # 构造不同条件的关键词搜索
+# values = {
+#     '全文': 'qw',
+#     '主题': 'theme',
+#     '篇名': 'title',
+#     '作者': 'author',
+#     '摘要': 'abstract'
+# }
 values = {
-    '全文': 'qw',
-    '主题': 'theme',
-    '篇名': 'title',
-    '作者': 'author',
-    '摘要': 'abstract'
+    '1': 'qw',
+    '2': 'theme',
+    '3': 'title',
+    '4': 'author',
+    '5': 'abstract'
 }
 
 headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; WOW64; rv:23.0) Gecko/20100101 Firefox/23.0'}
@@ -65,69 +72,12 @@ class Parse(threading.Thread):
                     data = None
                 # 如果成功拿到数据，则调用解析方法
                 if data is not None:
-                    self.parse(url,data)  # 调用解析方法
+                    parse(url,data)  # 调用解析方法
             else:
                 break  # 结束while 无限循环
 
         print('退出%d号解析线程' % self.number)
 
-    # 页面解析函数
-
-    def parse(self,url,_soup):
-        _Paper = InitDict()
-        _Paper['url'] = url  # 获得【链接】
-
-        _Paper['title'] = _soup.find('div',
-                              style="text-align:center; width:740px; font-size: 28px;color: #0000a0; font-weight:bold; font-family:'宋体';").text
-        author = _soup.find_all('div', style='text-align:center; width:740px; height:30px;')
-        author_buff=""
-        for item in author:
-            author_buff += item.get_text()
-        _Paper['authors'] = author_buff  # 获得【作者】
-        abstract = _soup.find('div', style='text-align:left;word-break:break-all')
-        _Paper['abstract'] = abstract.text.replace('\n', '')# 获得【摘要】
-        authorUnitScope = _soup.find('div', style='text-align:left;', class_='xx_font')
-        author_unit = ''
-        author_unit_text = authorUnitScope.get_text()
-        if '【作者单位】：' in author_unit_text:
-            auindex = author_unit_text.find('【作者单位】：', 0)
-        else:
-            auindex = author_unit_text.find('【学位授予单位】：', 0)
-        for k in range(auindex, len(author_unit_text)):
-            if author_unit_text[k] == '\n' or author_unit_text[k] == '\t' or author_unit_text[k] == '\r' or \
-                        author_unit_text[k] == '】':
-                continue
-            if author_unit_text[k] == ' ' and author_unit_text[k + 1] == ' ':
-                continue
-            if author_unit_text[k] != '【':
-                author_unit = author_unit + author_unit_text[k]
-            if author_unit_text[k] == '【' and k != auindex:
-                break
-        _Paper['unit'] = author_unit_text # 获得【单位】
-        key_word = ''
-        _Paper['keywords'] =key_word # 获得【关键词】
-
-
-        # _Paper['publication'] = str1[1]  # 获得【出版社】
-        #
-        # _Paper['type'] = deff2[1].text.split('【分　类】', 1)[1].split('【关键词】')[0].replace('\n', '')  # 获得【分类】
-        #
-        # StrComeFrom = deff2[1].text.split('【出　处】', 1)[1].split('【收　录】')[0].replace('\n', '')
-        # Strlist = re.split(r"[;,\s]\s*", StrComeFrom)
-        # t = 0
-        # for st in Strlist:
-        #     if st:
-        #         if "年" in st:
-        #             if '》' in st:
-        #                 _Paper['year'] = st.split('》')[1]  # 获得【出版年份】
-        #             else:
-        #                 _Paper['year'] = st
-        #         if "共" not in st and "页" in st:
-        #             _Paper['pagecode'] = st  # 获得【页码】
-        #         if "期" in st:
-        #             _Paper['issue'] = st  # 获得【期】
-        # print(_Paper)
-        InsetDbbyDict("`cqvipcrawler`.`result`", _Paper)
 
 class Crawl(threading.Thread): #采集线程类
     # 初始化
@@ -154,13 +104,10 @@ class Crawl(threading.Thread): #采集线程类
             # 防止请求频率过快，随机设置阻塞时间
             time.sleep(0.1)
             # 发起http请求，获取响应内容，追加到数据队列里，等待解析
-            response = self.GetSoup(url)
-            self.data_list.put([url,response])  # 向数据队列里追加
-    def GetSoup(self,url=None):
-        req = urllib.request.Request(url=url, headers=headers)
-        html = urllib.request.urlopen(req).read()
-        soup = BeautifulSoup(html, 'lxml')
-        return soup
+            response = GetSoup(url)
+            if response: #存在
+                self.data_list.put([url,response])  # 向数据队列里追加
+
 def Up_division_int(A, B):
     '''
      向上整除
@@ -191,7 +138,6 @@ class Cqvip_Crawler:
         keywordval = str(values[self.SearchMode]) + ':' + str(self.Input)
         index_url = 'http://search.cnki.com.cn/Search.aspx?q=' + quote(keywordval)  # quote方法把汉字转换为encodeuri?
         print(index_url)
-        # http://search.cnki.com.cn/search.aspx?q=title:自组网&p=2
         soup = self.GetSoup(url=index_url)
         pagesum_text = soup.find('span', class_='page-sum').get_text()
         print(pagesum_text)
@@ -214,10 +160,10 @@ class Cqvip_Crawler:
             Write_buff(file_buff="Config.ini", settion="Cqvip", info="startpage", state=i+1)
 
             keywordval = str(values[self.SearchMode]) + ':' + str(self.Input)
-            page_url = 'http://search.cnki.com.cn/Search.aspx?q=%s&p=%s'%(quote(keywordval),(i-1)*15+1)
+            page_url = 'http://search.cnki.com.cn/Search.aspx?q=%s&p=%s'%(quote(keywordval),(i-1)*15)
             print(page_url)
             threading.Thread(target=self.WriteUrlIntoDB, args=(page_url,i)).start()
-            time.sleep(0.5)
+            time.sleep(2)
         Write_buff(file_buff="Config.ini",settion="Cqvip",info="flag_get_all_url",state=1)
         print(time.time()-t)
     def WriteUrlIntoDB(self,page_url,page):
@@ -225,12 +171,11 @@ class Cqvip_Crawler:
         deff = soup.find_all('div', class_='wz_content')  #
         for k in range(len(deff)):
             Href = deff[k].a['href']
-            if 'http' not in Href or 'www' not in Href:
-                url = Href
-                #_UrlList.append(url)
-                sql="INSERT INTO `cqvipcrawler`.`databuff` (`Page`, `PageNum`,`PageIndex`, `Url`) VALUES ('%s', '%s', '%s','%s');\n" % (
-                    str(page), str(k), str(page) + '-' + str(k), url)
-                row = self.db.insert(sql) # 插入
+            url = Href
+            #_UrlList.append(url)
+            sql="INSERT INTO `cqvipcrawler`.`databuff` (`Page`, `PageNum`,`PageIndex`, `Url`) VALUES ('%s', '%s', '%s','%s');\n" % (
+                str(page), str(k), str(page) + '-' + str(k), url)
+            row = self.db.insert(sql) # 插入
     def GetUrlFromDb(self,num=20):
         sql="select `PageIndex`,`Url` from `databuff` where `State`in (0,-10) ORDER BY `Page` ASC, `PageNum` limit %s "%num
         _rows=self.db.do_sql(sql)
@@ -244,7 +189,7 @@ class Cqvip_Crawler:
             return ""
 
 def InitDict():
-    dir = {'url' :'', 'title' :'','authors':'','unit' :'','publication' :'','keywords' :'','abstract' :'','year' :'','volume' :'','issue' :'','pagecode' :'','doi' :'','string' :'','sponser' :'','type' :''}
+    dir = {'url' :'', 'title' :'','authors':'','unit' :'','publication' :'','keywords' :'','abstract' :'','year' :'','volume' :'','issue' :'','pagecode' :'','doi' :'','sponser' :'','type' :''}
     return dir
 
 def InsetDbbyDict(table,Dict):
@@ -252,7 +197,6 @@ def InsetDbbyDict(table,Dict):
     ROWstr = ''  # 行字段
     for key in Dict.keys():
         COLstr = COLstr + ' ' + '`' + key + '`,'
-
         ROWstr = (ROWstr + '"%s"' + ',') % (str(Dict[key]).replace('%',">").replace('\n','').replace('\"',"#"))
     sql = "INSERT INTO %s (%s) VALUES (%s);\n" % (
         table,COLstr[:-1], ROWstr[:-1])
@@ -367,7 +311,16 @@ def main():
     for t in parse_thread:
         t.join()
 
-
+def init_main():
+    if int(Read_buff(file_buff="Config.ini", settion="Cqvip", info='restart')) == 1:
+        CreatResultDBTable("result")
+        CreatUrlBuffTable("databuff")
+        db.do_sql("TRUNCATE `databuff`;")
+        db.do_sql("TRUNCATE `result`;")
+        Write_buff(file_buff="Config.ini", settion="Cqvip", info="restart", state=0)
+        Write_buff(file_buff="Config.ini", settion="Cqvip", info="startpage", state=1)
+        Write_buff(file_buff="Config.ini", settion="Cqvip", info="stopflag", state=0)
+        Write_buff(file_buff="Config.ini", settion="Cqvip", info="flag_get_all_url", state=0)
 
 def main1(argv):
     import sys, getopt
@@ -396,51 +349,50 @@ def main1(argv):
     print('输入结束时间为：', EndTime)
 
 def GetSoup(url=None):
-    req = urllib.request.Request(url=url, headers=headers)
-    html = urllib.request.urlopen(req).read()
-    soup = BeautifulSoup(html, 'lxml')
+    try:
+        req = urllib.request.Request(url=url, headers=headers)
+        html = urllib.request.urlopen(req,timeout=3).read()
+        soup = BeautifulSoup(html, 'lxml')
+    except:
+        db.upda_sql("update `databuff` set `State`=-15 where `Url`='%s'"%(url))
+        print("出现一次连接失败")
+        soup=False
     return soup
 def parse(url,_soup):
-    _Paper = InitDict()
-    _Paper['url'] = url  # 获得【链接】
-    t=''.join(list(filter(lambda ch: ch in '0123456789', url.split("-")[-1])))
-
-    NextUrl="http://kns.cnki.net/KCMS/detail/detail.aspx?dbname=CMFD&filename=%s.nh"%(t)
-    print(NextUrl)
-    _Paper['title'] = _soup.find('div',
-                          style="text-align:center; width:740px; font-size: 28px;color: #0000a0; font-weight:bold; font-family:'宋体';").text
-    author = _soup.find_all('div', style='text-align:center; width:740px; height:30px;')
-    author_buff=""
-    for item in author:
-        author_buff += item.get_text()
-    _Paper['authors'] = author_buff  # 获得【作者】
-    abstract = _soup.find('div', style='text-align:left;word-break:break-all')
-    _Paper['abstract'] = abstract.text.replace('\n', '')# 获得【摘要】
-    authorUnitScope = _soup.find('div', style='text-align:left;', class_='xx_font')
-    author_unit = ''
-    author_unit_text = authorUnitScope.get_text()
-    if '【作者单位】：' in author_unit_text:
-        auindex = author_unit_text.find('【作者单位】：', 0)
-    else:
-        auindex = author_unit_text.find('【学位授予单位】：', 0)
-    for k in range(auindex, len(author_unit_text)):
-        if author_unit_text[k] == '\n' or author_unit_text[k] == '\t' or author_unit_text[k] == '\r' or \
-                    author_unit_text[k] == '】':
-            continue
-        if author_unit_text[k] == ' ' and author_unit_text[k + 1] == ' ':
-            continue
-        if author_unit_text[k] != '【':
-            author_unit = author_unit + author_unit_text[k]
-        if author_unit_text[k] == '【' and k != auindex:
-            break
-    _Paper['unit'] = author_unit_text # 获得【单位】
-    key_word = ''
-    _Paper['keywords'] =key_word # 获得【关键词】
-
+    if _soup is not None:
+        _Paper = InitDict()
+        _Paper['url'] = url  # 获得【链接】
+        _Paper['title'] = _soup.find('div',
+                              style="text-align:center; width:740px; font-size: 28px;color: #0000a0; font-weight:bold; font-family:'宋体';").text
+        author = _soup.find_all('div', style='text-align:center; width:740px; height:30px;')
+        author_buff=""
+        for item in author:
+            author_buff += item.get_text()
+        _Paper['authors'] = author_buff  # 获得【作者】
+        abstract = _soup.find('div', style='text-align:left;word-break:break-all')
+        abstract_text = abstract.text.replace('\n','').replace('\r','').replace(' ','')# 获得【摘要】
+        _Paper['abstract']=abstract_text.split("要】：")[1] if "要】：" in abstract_text else abstract_text
+        authorUnitScope = _soup.find('div', style='text-align:left;', class_='xx_font')
+        author_unit = ''
+        author_unit_text = authorUnitScope.get_text().replace('\n','').replace('\r','').replace(' ','')
+        info=author_unit_text.split("：")
+        auindex = author_unit_text.split("单位】：")[1].split("【")[0] if "单位】：" in author_unit_text else ""
+        _Paper['sponser'] = author_unit_text.split("基金】：")[1].split("【")[0] if "【基金】：" in author_unit_text else ""
+        _Paper['unit'] = auindex # 获得【单位】
+        publicationScope = _soup.find('div', style='float:left;').text.replace('\n','').replace('\r','').replace(' ','').replace('\t','')
+        _Paper['publication']=re.search(r'《.*》', publicationScope).group() if "《" in publicationScope  else ""
+        _Paper['year']=re.search(r'\d+年', publicationScope).group() if "年" in publicationScope else ""
+        _Paper['year']=_Paper['year'].split("年")[0] if _Paper['year']!="" else _Paper['year']
+        _Paper['issue']=re.search(r'\d+期', publicationScope).group() if "期" in publicationScope else ""
+        _Paper['issue'] =_Paper['issue'].split("期")[0] if _Paper['issue'] != "" else _Paper['issue']
+        InsetDbbyDict("`cqvipcrawler`.`result`", _Paper)
 if __name__ == '__main__':
+    SearchDBName = 'Cqvip'
+    multiprocessing.freeze_support()  # 多进程打包的话必须加上
     db = HCJ_MySQL()
     Cqvip = Cqvip_Crawler(db=db)
-    url="http://cdmd.cnki.com.cn/Article/CDMD-10286-2003124034.htm"
-    parse(url,GetSoup(url))
-    # main()
-    # Cqvip.WriteAllUrlIntoDBMain()
+    init_main()
+    main()
+    # url="http://cdmd.cnki.com.cn/Article/CDMD-10286-2003124034.htm"
+    # soup=GetSoup(url)
+    # parse(url=url,_soup=soup)
