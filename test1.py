@@ -165,6 +165,21 @@ if __name__ == '__main__':
     #     print('error' + str(err))
     # finally:
     #     fp.close()
-    if 3 in range(1,5):
-        print(333)
 
+
+    str1=""
+    Dict={'url': 'http://www.cqvip.com/%22/QK/94832X/200901/28998296.html%22', 'title': '移动自组网软件平台的研究与设计', 'authors': ' 何庆 邱静怡 许德兴 许骏 ', 'unit': '华南师范大学教育信息技术学院 广州510631 广州无线电研究所 广州510500 \n', 'publication': '《计算机应用》', 'keywords': ' 无线自组网 普适终端设备 AODV MAODV 移动计算   ', 'abstract': '终端设备的独有特性包括它们的移动性、个性化和位置感知，形成了新型的无线应用，能满足普遍存在的移动计算需求。展示一种在移动自组网环境下的无线终端设备。终端设备选择在Linux嵌入式平台进行开发。在该设备上，实现了AODV、MAODV路由算法并在NS-2上进行了路由协议性能的比较和分析。最后给出了终端设备原型的实现，并且提出了未来的改进方向和应用场景。\r\t\t\t\t', 'year': '2009', 'volume': '', 'issue': '1', 'pagecode': '340-343', 'doi': '', 'sponser': '', 'type': '【工业技术】 > 自动化技术、计算机技术 > 计算技术、计算机技术 > 计算机的应用 > 计算机网络 '}
+    for key in list(Dict.keys()):
+        if str(Dict[key])=="":
+            del Dict[key]
+        else:
+            Dict[key] = Dict[key].replace('\n','').replace('\"',"#").replace('\t',"").replace('\r',"").replace('\xa0',"").replace('%', ">")
+    print(Dict)
+    for key in list(Dict.keys()):
+        if str(Dict[key]) != "":
+            col=key
+            row=Dict[key]
+            str1=str1+"`%s`=(case when `%s`='' then '%s' else `%s` end ),"%(col,col,row,col)
+    print(str1[:-1])
+    sql_update="update `result` set `url`=concat(`url`,';%s'),%s where `title`='%s' and `publication`='%s'"%(Dict['url'],str1[:-1],(Dict['title']),(Dict['publication']))
+    print(sql_update)
