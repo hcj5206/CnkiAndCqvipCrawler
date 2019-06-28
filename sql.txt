@@ -1,0 +1,39 @@
+/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
+/*!40101 SET NAMES utf8 */;
+/*!50503 SET NAMES utf8mb4 */;
+/*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
+/*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
+
+CREATE TABLE IF NOT EXISTS `databuff` (
+  `Index` int(11) NOT NULL AUTO_INCREMENT,
+  `Url` varchar(200) NOT NULL,
+  `State` int(11) DEFAULT '0' COMMENT '-5 日期不对 -15无效链接 -10 插入出现错误 0 初始 10 处理中 20 处理结束',
+  `Datetime` datetime DEFAULT CURRENT_TIMESTAMP,
+  `Source` varchar(50) DEFAULT NULL,
+  PRIMARY KEY (`Index`),
+  UNIQUE KEY `Url` (`Url`)
+) ENGINE=InnoDB AUTO_INCREMENT=5476 DEFAULT CHARSET=utf8;
+
+CREATE TABLE IF NOT EXISTS `result` (
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `url` text,
+  `title` varchar(200) DEFAULT NULL,
+  `authors` varchar(200) DEFAULT NULL,
+  `unit` text,
+  `publication` varchar(200) DEFAULT NULL,
+  `keywords` varchar(200) DEFAULT NULL,
+  `abstract` text,
+  `year` varchar(200) DEFAULT NULL,
+  `volume` varchar(200) DEFAULT NULL,
+  `issue` varchar(200) DEFAULT NULL,
+  `pagecode` varchar(200) DEFAULT NULL,
+  `doi` varchar(200) DEFAULT NULL,
+  `sponser` varchar(200) DEFAULT NULL,
+  `type` varchar(200) DEFAULT NULL,
+  `source` varchar(200) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=2663 DEFAULT CHARSET=utf8;
+
+/*!40101 SET SQL_MODE=IFNULL(@OLD_SQL_MODE, '') */;
+/*!40014 SET FOREIGN_KEY_CHECKS=IF(@OLD_FOREIGN_KEY_CHECKS IS NULL, 1, @OLD_FOREIGN_KEY_CHECKS) */;
+/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
