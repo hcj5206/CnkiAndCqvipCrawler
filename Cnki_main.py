@@ -50,8 +50,6 @@ class Cnki_Crawler:
         self.db=db
        
         self.SettingPath=SettingPath # 配置文件地址
-        self._Perpage=10 # 每页显示20
-        self._ResultDbTable='CqvipResult'
         if  Input is None and SearchMode is None:
             self.Input=Read_buff(file_buff=self.SettingPath,settion=SearchDBName,info='input') # 输入内容
             self.SearchMode=Read_buff(file_buff=self.SettingPath,settion=SearchDBName,info='searchmode') # 模式选择
@@ -59,16 +57,29 @@ class Cnki_Crawler:
             self.EndTime=Read_buff(file_buff=self.SettingPath,settion=SearchDBName,info='endtime') # 结束年份
             self.StartPage=Read_buff(file_buff=self.SettingPath,settion=SearchDBName,info='startpage') # 开始页数
             self.MaxPage=Read_buff(file_buff=self.SettingPath,settion=SearchDBName,info='maxpage') # 开始页数
+            self.title = Read_buff(file_buff=self.SettingPath, settion=SearchDBName, info='title')
+            self.authors = Read_buff(file_buff=self.SettingPath, settion=SearchDBName, info='authors')
+            self.keywords = Read_buff(file_buff=self.SettingPath, settion=SearchDBName, info='keywords')
+            self.publication = Read_buff(file_buff=self.SettingPath, settion=SearchDBName,info='publication')
+            self.BaseKeyword=""
+            if RemoveSpecialCharacter(self.title) !="":
+                self.BaseKeyword=self.BaseKeyword+" title:"+self.title
+            if RemoveSpecialCharacter(self.authors) !="":
+                self.BaseKeyword=self.BaseKeyword+" author:"+self.authors
+            if RemoveSpecialCharacter(self.keywords) !="":
+                self.BaseKeyword=self.BaseKeyword+" qw:"+self.keywords
+            if RemoveSpecialCharacter(self.publication) !="":
+                self.BaseKeyword=self.BaseKeyword+" 作者单位:"+self.publication
         else:
             # Todo
             pass
     def GetMaxPage(self):
-        keywordval = str(values[self.SearchMode]) + ':' + str(self.Input)
-        index_url = 'http://search.cnki.com.cn/Search.aspx?q=' + quote(keywordval)  # quote方法把汉字转换为encodeuri?
-        print(index_url)
+        keywordval = self.BaseKeyword
+        index_url = 'http://search.cnki.com.cn/Search.aspx?q=' + quote(self.BaseKeyword)  # quote方法把汉字转换为encodeuri?
+
         soup = GetSoup(url=index_url)
         pagesum_text = soup.find('span', class_='page-sum').get_text()
-        print(pagesum_text)
+
         summarys = math.ceil(int(pagesum_text[7:-1]))
         self.MaxPage=Up_division_int(summarys,int(15))
         Write_buff(file_buff="Config.ini", settion=SearchDBName, info="maxpage", state=self.MaxPage)
@@ -81,12 +92,11 @@ class Cnki_Crawler:
         for i in range(int(self.StartPage),self.MaxPage):
             print("%s采集器共有%s页，当前为%s页，获得文献链接的进度完成%.2f" % (SearchDBName,self.MaxPage, i,(int(i)/int(self.MaxPage))*100))
             Write_buff(file_buff="Config.ini", settion=SearchDBName, info="startpage", state=i+1)
-
-            keywordval = str(values[self.SearchMode]) + ':' + str(self.Input)
+            keywordval = self.BaseKeyword
             page_url = 'http://search.cnki.com.cn/Search.aspx?q=%s&p=%s'%(quote(keywordval),(i-1)*15)
             print(page_url)
             threading.Thread(target=self.WriteUrlIntoDB, args=(page_url,i)).start()
-            time.sleep(2)
+            time.sleep(1)
         Write_buff(file_buff="Config.ini",settion=SearchDBName,info="flag_get_all_url",state=1)
         print(time.time()-t)
     def WriteUrlIntoDB(self,page_url,page):
@@ -97,9 +107,10 @@ class Cnki_Crawler:
                 Href = deff[k].a['href']
                 url = Href
                 #_UrlList.append(url)
-                sql="INSERT INTO `cqvipcrawler`.`databuff` ( `Url`,`Source`) VALUES ('%s','%s');\n" % (
+                sql="INSERT INTO `crawler`.`databuff` ( `Url`,`Source`) VALUES ('%s','%s');\n" % (
                      url,SearchDBName)
                 row = self.db.insert(sql) # 插入
+
 
     def GetUrlFromDb(self,num=20):
         sql="select `Index`,`Url` from `databuff` where `State`in (0,-10) and `Source`='%s'  limit %s "%(SearchDBName,num)
@@ -137,7 +148,7 @@ class Parse(threading.Thread):
 
             if self.is_parse or int(Read_buff(file_buff="Config.ini", settion=SearchDBName,info='stopflag'))==0:  # 解析
                 try:
-                    print(url)
+
                     url,data = self.data_list.get(timeout=3)  # 从数据队列里提取一个数据
                 except Exception as e:  # 超时以后进入异常
                     data = None
@@ -172,9 +183,10 @@ class Crawl(threading.Thread): #采集线程类
             url = self.req_list.get()
             # print('%d号线程采集：%s' % (self.number, url))
             # 防止请求频率过快，随机设置阻塞时间
-            time.sleep(0.1)
+            time.sleep(0.5)
             # 发起http请求，获取响应内容，追加到数据队列里，等待解析
             response = GetSoup(url)
+            # print(url)
             if response: #存在
                 self.data_list.put([url,response])  # 向数据队列里追加
 class ClockProcess(multiprocessing.Process):
@@ -264,7 +276,7 @@ def parse(url,_soup):
             _Paper['year']=_Paper['year'].split("年")[0] if _Paper['year']!="" else _Paper['year']
             _Paper['issue']=re.search(r'\d+期', publicationScope).group() if "期" in publicationScope else ""
             _Paper['issue'] =_Paper['issue'].split("期")[0] if _Paper['issue'] != "" else _Paper['issue']
-            InsetDbbyDict("`cqvipcrawler`.`result`", _Paper,db)
+            InsetDbbyDict("`crawler`.`result`", _Paper,db)
         except:
             db.upda_sql("update `databuff` set `State`=-16 where `Url`='%s'" % (_Paper['url']))
             print(_Paper['url'],"goup解析出现错误")

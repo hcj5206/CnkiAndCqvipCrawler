@@ -9,14 +9,17 @@ import re
 def CreatUrlBuffTable(db,TableName):
     CreatDBTableSql = '\
             CREATE TABLE IF NOT EXISTS `%s` (\
-	        `Url` VARCHAR(200) NULL DEFAULT NULL,\
-	        `State` INT(11) NULL DEFAULT \'0\'  COMMENT \'-5 日期不对 -10 出现错误 0 初始 10 处理中 20 处理结束\',\
-	        `Datetime` DATETIME NULL DEFAULT CURRENT_TIMESTAMP,\
-	        UNIQUE INDEX `PageIndex` (`PageIndex`)\
+            `Index` int(11) unsigned NOT NULL AUTO_INCREMENT,\
+            `Url` VARCHAR(255) DEFAULT NULL,\
+            `State` INT(11) NULL DEFAULT \'0\'  COMMENT \'-5 日期不对 -10 出现错误 0 初始 10 处理中 20 处理结束\',\
+            `Datetime` DATETIME NULL DEFAULT CURRENT_TIMESTAMP,\
+            `Source` VARCHAR(200) NULL DEFAULT NULL,\
+            UNIQUE INDEX `Url` (`Url`),\
+            PRIMARY KEY (`Index`)\
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8; ' % TableName
     dict_result = db.upda_sql(CreatDBTableSql)
     if not dict_result:
-        print("创建出现问题")
+        print("创建%s表出现问题" % TableName)
 
 def CreatResultDBTable(db,TableName):
     '''
@@ -38,15 +41,16 @@ def CreatResultDBTable(db,TableName):
           `issue` varchar(200) DEFAULT NULL,\
           `pagecode` varchar(200) DEFAULT NULL,\
           `doi` varchar(200) DEFAULT NULL,\
-          `sponser` varchar(200) DEFAULT NULL,\
+          `sponser` text DEFAULT NULL,\
           `type` varchar(200) DEFAULT NULL,\
+          `source` varchar(200) DEFAULT NULL,\
           PRIMARY KEY (`id`)\
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8; ' % TableName
     dict_result = db.upda_sql(CreatDBTableSql)
     if not dict_result:
         print("创建出现问题")
 def RemoveSpecialCharacter(str1):
-    # 去除特殊符号
+    # 去除特殊符号 只留汉字 数字 字母
     cop = re.compile(r"[^\u4e00-\u9fa5^.^a-z^A-Z^0-9]")
     string1 = cop.sub('', str(str1))  # 将string1中匹配到的字符替换成空字符
     return string1
@@ -69,9 +73,7 @@ def InsetDbbyDict(table,Dict,db):
         table,COLstr[:-1], ROWstr[:-1],SearchDbname)
     sql_select="select count(*) from `result` where `title`='%s' and `publication` LIKE '%%%%%s%%%%'"%((Dict['title']),((Dict['publication'])))
     sql_update="Update `databuff` set `State`=20 where `Url`='%s' "%str(Dict['url']).replace('>', "%")
-
     result_count=db.do_sql_one(sql_select)
-    print(result_count)
     if  result_count[0]==0 or result_count[0]=='0':
         result_dic=db.insert(sql)
 

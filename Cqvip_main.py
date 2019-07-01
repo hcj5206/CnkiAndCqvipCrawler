@@ -125,14 +125,27 @@ class Cqvip_Crawler:
             self.StartTime = Read_buff(file_buff=self.SettingPath, settion=self.SearchName, info='starttime')  # 开始年份
             self.EndTime = Read_buff(file_buff=self.SettingPath, settion=self.SearchName, info='endtime')  # 结束年份
             self.StartPage = Read_buff(file_buff=self.SettingPath, settion=self.SearchName, info='startpage')  # 开始页数
-            self.MaxPage = Read_buff(file_buff=self.SettingPath, settion=self.SearchName, info='maxpage')  # 开始页数
+            self.title = Read_buff(file_buff=self.SettingPath, settion=SearchDBName, info='title')
+            self.authors = Read_buff(file_buff=self.SettingPath, settion=SearchDBName, info='authors')
+            self.keywords = Read_buff(file_buff=self.SettingPath, settion=SearchDBName, info='keywords')
+            self.publication = Read_buff(file_buff=self.SettingPath, settion=SearchDBName, info='publication')
+            self.BaseKeyword = ""
+            if RemoveSpecialCharacter(self.title) != "":
+                self.BaseKeyword = self.BaseKeyword + "&k=" + quote(self.title)
+            if RemoveSpecialCharacter(self.authors) != "":
+                self.BaseKeyword = self.BaseKeyword + "&w=" + quote(self.authors)
+            if RemoveSpecialCharacter(self.keywords) != "":
+                self.BaseKeyword = self.BaseKeyword + "&k=" + quote(self.keywords)
+            if RemoveSpecialCharacter(self.publication) != "":
+                self.BaseKeyword = self.BaseKeyword + "&o=" + quote(self.publication)
+
         else:
             # Todo
             pass
 
     def GetMaxPage(self):
-        index_url = "http://www.cqvip.com/data/main/search.aspx?action=so&curpage=1&perpage=%s&%s=%s" % (
-            str(self._Perpage), str(values[self.SearchMode]), quote(str(self.Input)))
+        index_url = "http://www.cqvip.com/data/main/search.aspx?action=so&curpage=1&perpage=%s&%s" % (
+            str(self._Perpage), self.BaseKeyword)
         soup = GetSoup(url=index_url)
         deff = soup.select('p')[0].text
         summarys = int(deff.split('\r\n')[1].split('"recordcount":')[1].split(',')[0].strip())
@@ -151,8 +164,8 @@ class Cqvip_Crawler:
         for i in range(int(self.StartPage), self.MaxPage):
             print("%s采集器，共有%s页，当前为%s页，获得文献链接的进度完成%.2f" % (SearchDBName,self.MaxPage, i, (int(i) / int(self.MaxPage)) * 100))
             Write_buff(file_buff="Config.ini", settion=SearchDBName, info="startpage", state=i + 1)
-            page_url = "http://www.cqvip.com/data/main/search.aspx?action=so&curpage=%s&perpage=20&%s=%s" % (
-                str(i), str(values[self.SearchMode]), quote(str(self.Input)))
+            page_url = "http://www.cqvip.com/data/main/search.aspx?action=so&curpage=%s&perpage=20&%s" % (
+                str(i), self.BaseKeyword)
             threading.Thread(target=self.WriteUrlIntoDB, args=(page_url, i)).start()
             time.sleep(0.5)
         Write_buff(file_buff="Config.ini", settion=SearchDBName, info="flag_get_all_url", state=1)
@@ -168,7 +181,7 @@ class Cqvip_Crawler:
                     Href = deff[k].a['href'].replace('\\', '')
                     url = "http://www.cqvip.com/" + quote(Href)
                     # _UrlList.append(url)
-                    sql = "INSERT INTO `cqvipcrawler`.`databuff` ( `Url`,`Source`) VALUES ('%s','%s');" % (
+                    sql = "INSERT INTO `crawler`.`databuff` ( `Url`,`Source`) VALUES ('%s','%s');" % (
                        url,SearchDBName)
                     row = self.db.insert(sql)  # 插入
 
@@ -233,7 +246,7 @@ def parse( url, _soup):
             if "期" in st:
                 _Paper['issue'] = re.search(r'\d+', st).group()  # 获得【期】
     # print(_Paper)
-    InsetDbbyDict("`cqvipcrawler`.`result`", _Paper,db)
+    InsetDbbyDict("`crawler`.`result`", _Paper,db)
 
 
 class ClockProcess(multiprocessing.Process):
@@ -358,4 +371,3 @@ def ProcessMain():
 if __name__ == '__main__':
     init_main()
     main()
-#刚才界面的那个显示程序呢

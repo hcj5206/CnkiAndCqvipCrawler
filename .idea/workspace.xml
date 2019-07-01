@@ -1,18 +1,29 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="BookmarkManager">
-    <bookmark url="file://$PROJECT_DIR$/PublicDef.py" line="49" />
+    <bookmark url="file://$PROJECT_DIR$/PublicDef.py" line="53" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="1f2c29fe-7f5a-4819-bb5a-51181dcb6208" name="Default Changelist" comment="20190626">
-      <change afterPath="$PROJECT_DIR$/PublicDef.py" afterDir="false" />
+    <list default="true" id="1f2c29fe-7f5a-4819-bb5a-51181dcb6208" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Cnki_main.py" beforeDir="false" afterPath="$PROJECT_DIR$/Cnki_main.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Config.ini" beforeDir="false" afterPath="$PROJECT_DIR$/Config.ini" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Cqvip_main.py" beforeDir="false" afterPath="$PROJECT_DIR$/Cqvip_main.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/HCJ_DB_Helper.py" beforeDir="false" afterPath="$PROJECT_DIR$/HCJ_DB_Helper.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/test1.py" beforeDir="false" afterPath="$PROJECT_DIR$/test1.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PublicDef.py" beforeDir="false" afterPath="$PROJECT_DIR$/PublicDef.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Wanfang_main.py" beforeDir="false" afterPath="$PROJECT_DIR$/Wanfang_main.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/demo/Cqvip_main.spec" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/demo/build/Cqvip_main/Analysis-00.toc" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/demo/build/Cqvip_main/Cqvip_main.exe.manifest" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/demo/build/Cqvip_main/EXE-00.toc" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/demo/build/Cqvip_main/PKG-00.pkg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/demo/build/Cqvip_main/PKG-00.toc" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/demo/build/Cqvip_main/PYZ-00.pyz" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/demo/build/Cqvip_main/PYZ-00.toc" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/demo/build/Cqvip_main/base_library.zip" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/demo/build/Cqvip_main/warn-Cqvip_main.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/demo/build/Cqvip_main/xref-Cqvip_main.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/demo/dist/Config.ini" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/demo/dist/Cqvip_main.exe" beforeDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -39,8 +50,8 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/Cqvip_main.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="6172">
-              <caret line="277" column="89" selection-start-line="277" selection-start-column="73" selection-end-line="277" selection-end-column="89" />
+            <state relative-caret-position="327">
+              <caret line="371" column="15" lean-forward="true" selection-start-line="371" selection-start-column="15" selection-end-line="371" selection-end-column="15" />
               <folding>
                 <element signature="n#!!doc" />
                 <element signature="e#111#126#0" expanded="true" />
@@ -49,11 +60,11 @@
           </provider>
         </entry>
       </file>
-      <file pinned="false" current-in-tab="true">
+      <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/Cnki_main.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="359">
-              <caret line="142" column="31" lean-forward="true" selection-start-line="142" selection-start-column="31" selection-end-line="142" selection-end-column="31" />
+            <state relative-caret-position="210">
+              <caret line="77" column="70" selection-start-line="77" selection-start-column="65" selection-end-line="77" selection-end-column="70" />
               <folding>
                 <element signature="e#110#122#0" expanded="true" />
               </folding>
@@ -62,49 +73,28 @@
         </entry>
       </file>
       <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/sql.txt">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="1053">
+              <caret line="39" selection-start-line="39" selection-end-line="39" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/PublicDef.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="146">
-              <caret line="52" column="12" lean-forward="true" selection-start-line="52" selection-start-column="12" selection-end-line="52" selection-end-column="12" />
+            <state relative-caret-position="952">
+              <caret line="44" column="44" lean-forward="true" selection-start-line="44" selection-start-column="44" selection-end-line="44" selection-end-column="44" />
             </state>
           </provider>
         </entry>
       </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$APPLICATION_HOME_DIR$/helpers/typeshed/stdlib/3/multiprocessing/__init__.pyi">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="200">
-              <caret line="73" column="4" selection-start-line="73" selection-start-column="4" selection-end-line="73" selection-end-column="4" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/test1.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="470">
-              <caret line="183" column="35" lean-forward="true" selection-start-line="183" selection-start-column="35" selection-end-line="183" selection-end-column="35" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/HCJ_Buff_Control.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="188">
-              <caret line="38" column="43" selection-start-line="38" selection-start-column="36" selection-end-line="38" selection-end-column="43" />
-              <folding>
-                <element signature="e#86#121#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
+      <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/main.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="513">
-              <caret line="19" selection-start-line="19" selection-end-line="19" />
+            <state relative-caret-position="385">
+              <caret line="19" column="36" selection-start-line="19" selection-start-column="36" selection-end-line="19" selection-end-column="36" />
               <folding>
                 <element signature="e#104#126#0" expanded="true" />
               </folding>
@@ -115,7 +105,7 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/HCJ_DB_Helper.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="108">
+            <state relative-caret-position="191">
               <caret line="92" selection-start-line="92" selection-end-line="92" />
               <folding>
                 <element signature="e#122#133#0" expanded="true" />
@@ -127,8 +117,20 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/Config.ini">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="130">
-              <caret line="28" lean-forward="true" selection-start-line="28" selection-end-line="28" />
+            <state relative-caret-position="459">
+              <caret line="38" column="11" selection-start-line="38" selection-start-column="11" selection-end-line="38" selection-end-column="11" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/Wanfang_main.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="-1196">
+              <caret line="115" column="31" selection-start-line="115" selection-start-column="31" selection-end-line="115" selection-end-column="31" />
+              <folding>
+                <element signature="e#115#127#0" expanded="true" />
+              </folding>
             </state>
           </provider>
         </entry>
@@ -144,27 +146,11 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>main_loop</find>
-      <find>databuff</find>
-      <find>剔除</find>
-      <find>values</find>
-      <find>CreatResultDBTable</find>
-      <find>string</find>
-      <find>State</find>
-      <find>GetMaxPage</find>
-      <find>Cqvip</find>
-      <find>&quot;Cqvip&quot;</find>
-      <find>Cqvip_Crawler</find>
-      <find>'Cnki'</find>
-      <find>self.SearchName</find>
-      <find>SearchDBName</find>
-      <find>GetSoup</find>
       <find>WriteUrlIntoDB</find>
       <find>HCJ_MySQL()</find>
       <find>result</find>
       <find>`result`</find>
       <find>select `PageIndex`,`Url` from `databuff`</find>
-      <find>InsetDbbyDict</find>
       <find>PageIndex</find>
       <find>出现错误</find>
       <find>update `result` sets `url`=concat</find>
@@ -172,8 +158,24 @@
       <find>出现一次连接失败</find>
       <find>flag_get_all_url</find>
       <find>url,data = self.data</find>
-      <find>结束</find>
       <find>url,data =</find>
+      <find>结束</find>
+      <find>requests</find>
+      <find>InsetDbbyDict</find>
+      <find>search.cnki</find>
+      <find>quote</find>
+      <find>_Perpage</find>
+      <find>crawler</find>
+      <find>parse</find>
+      <find>cqvipcrawler</find>
+      <find>`State`</find>
+      <find>data_list</find>
+      <find>source</find>
+      <find>http://www.cqvip.com/d</find>
+      <find>values</find>
+      <find>input</find>
+      <find>http://www.cqvip.com/data/mai</find>
+      <find>print</find>
     </findStrings>
     <replaceStrings>
       <replace>.</replace>
@@ -182,6 +184,7 @@
       <replace>Cnki</replace>
       <replace>Cnki_Crawler</replace>
       <replace>SearchDBName</replace>
+      <replace>crawler</replace>
     </replaceStrings>
   </component>
   <component name="Git.Settings">
@@ -217,22 +220,24 @@
         <option value="$PROJECT_DIR$/Cqvip_main_test.py" />
         <option value="$PROJECT_DIR$/demo/dist/Config.ini" />
         <option value="$PROJECT_DIR$/README.md" />
-        <option value="$PROJECT_DIR$/Wanfang_main.py" />
         <option value="$PROJECT_DIR$/12.py" />
         <option value="$PROJECT_DIR$/zhengze.py" />
         <option value="$PROJECT_DIR$/PublicControl.py" />
         <option value="$PROJECT_DIR$/HCJ_DB_Helper.py" />
         <option value="$PROJECT_DIR$/main.py" />
-        <option value="$PROJECT_DIR$/Cqvip_main.py" />
         <option value="$PROJECT_DIR$/test1.py" />
+        <option value="$PROJECT_DIR$/sql.txt" />
         <option value="$PROJECT_DIR$/Cnki_main.py" />
-        <option value="$PROJECT_DIR$/Config.ini" />
+        <option value="$PROJECT_DIR$/Cqvip_main.py" />
         <option value="$PROJECT_DIR$/PublicDef.py" />
+        <option value="$PROJECT_DIR$/Wanfang_main.py" />
+        <option value="$PROJECT_DIR$/Config.ini" />
       </list>
     </option>
   </component>
-  <component name="ProjectFrameBounds">
-    <option name="x" value="-3" />
+  <component name="ProjectFrameBounds" extendedState="6">
+    <option name="x" value="314" />
+    <option name="y" value="8" />
     <option name="width" value="1921" />
     <option name="height" value="1047" />
   </component>
@@ -265,11 +270,12 @@
     <property name="settings.editor.selected.configurable" value="com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable" />
   </component>
   <component name="RecentsManager">
-    <key name="MoveFile.RECENT_KEYS">
-      <recent name="F:\OneDirve_hcj\OneDrive - tju.edu.cn\天津大学研究生作业\CnkiCrawler" />
-    </key>
     <key name="CopyFile.RECENT_KEYS">
       <recent name="F:\OneDirve_hcj\OneDrive - tju.edu.cn\CnkiCrawler\demo\dist" />
+      <recent name="F:\OneDirve_hcj\OneDrive - tju.edu.cn\天津大学研究生作业\CnkiCrawler" />
+    </key>
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="F:\OneDirve_hcj\OneDrive - tju.edu.cn\CnkiCrawler" />
       <recent name="F:\OneDirve_hcj\OneDrive - tju.edu.cn\天津大学研究生作业\CnkiCrawler" />
     </key>
   </component>
@@ -290,9 +296,6 @@
       <module name="CnkiCrawler" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
       <option name="SDK_HOME" value="" />
       <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
       <option name="IS_MODULE_SDK" value="true" />
@@ -308,7 +311,7 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
-    <configuration name="Cqvip_main" type="PythonConfigurationType" factoryName="Python" temporary="true">
+    <configuration name="Cqvip_main" type="PythonConfigurationType" factoryName="Python">
       <module name="CnkiCrawler" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -334,6 +337,9 @@
       <module name="CnkiCrawler" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
       <option name="SDK_HOME" value="" />
       <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
       <option name="IS_MODULE_SDK" value="true" />
@@ -341,6 +347,25 @@
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
       <option name="SCRIPT_NAME" value="$PROJECT_DIR$/PublicDef.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <configuration name="Wanfang_main" type="PythonConfigurationType" factoryName="Python">
+      <module name="CnkiCrawler" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/Wanfang_main.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -375,6 +400,9 @@
       <module name="CnkiCrawler" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
       <option name="SDK_HOME" value="" />
       <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
       <option name="IS_MODULE_SDK" value="true" />
@@ -394,6 +422,9 @@
       <module name="CnkiCrawler" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
       <option name="SDK_HOME" value="" />
       <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
       <option name="IS_MODULE_SDK" value="true" />
@@ -410,19 +441,19 @@
       <method v="2" />
     </configuration>
     <list>
-      <item itemvalue="Python.Cnki_main" />
+      <item itemvalue="Python.Wanfang_main" />
       <item itemvalue="Python.Cqvip_main" />
       <item itemvalue="Python.main" />
       <item itemvalue="Python.PublicDef" />
       <item itemvalue="Python.test1" />
+      <item itemvalue="Python.Cnki_main" />
     </list>
     <recent_temporary>
       <list>
         <item itemvalue="Python.main" />
+        <item itemvalue="Python.Cnki_main" />
         <item itemvalue="Python.PublicDef" />
         <item itemvalue="Python.test1" />
-        <item itemvalue="Python.Cqvip_main" />
-        <item itemvalue="Python.Cnki_main" />
       </list>
     </recent_temporary>
   </component>
@@ -449,7 +480,8 @@
       <workItem from="1561428232414" duration="607000" />
       <workItem from="1561521026173" duration="3092000" />
       <workItem from="1561603089011" duration="15591000" />
-      <workItem from="1561684390205" duration="18383000" />
+      <workItem from="1561684390205" duration="18565000" />
+      <workItem from="1561943521271" duration="8725000" />
     </task>
     <task id="LOCAL-00001" summary="20190624实现维普爬虫，且生成exe">
       <created>1561377544121</created>
@@ -486,11 +518,25 @@
       <option name="project" value="LOCAL" />
       <updated>1561635102751</updated>
     </task>
-    <option name="localTasksCounter" value="6" />
+    <task id="LOCAL-00006" summary="20190628 hcj 重写整体结构 完善不存在的话插入更新">
+      <created>1561713135967</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1561713135967</updated>
+    </task>
+    <task id="LOCAL-00007" summary="20190628 hcj 重写整体结构 完善不存在的话插入更新 +sql">
+      <created>1561713200774</created>
+      <option name="number" value="00007" />
+      <option name="presentableId" value="LOCAL-00007" />
+      <option name="project" value="LOCAL" />
+      <updated>1561713200774</updated>
+    </task>
+    <option name="localTasksCounter" value="8" />
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="137557000" />
+    <option name="totallyTimeSpent" value="146464000" />
   </component>
   <component name="TodoView">
     <todo-panel id="selected-file">
@@ -502,20 +548,21 @@
     </todo-panel>
   </component>
   <component name="ToolWindowManager">
-    <frame x="-3" y="0" width="1921" height="1047" extended-state="0" />
+    <frame x="-8" y="-8" width="1936" height="1056" extended-state="6" />
+    <editor active="true" />
     <layout>
       <window_info id="Favorites" order="0" side_tool="true" />
-      <window_info active="true" content_ui="combo" id="Project" order="1" visible="true" weight="0.12251478" />
+      <window_info content_ui="combo" id="Project" order="1" visible="true" weight="0.12260128" />
       <window_info id="Structure" order="2" side_tool="true" weight="0.25" />
       <window_info anchor="bottom" id="Database Changes" order="0" />
       <window_info anchor="bottom" id="Terminal" order="1" sideWeight="0.49919224" weight="0.3275488" />
       <window_info anchor="bottom" id="Event Log" order="2" sideWeight="0.50159913" side_tool="true" weight="0.32104123" />
-      <window_info anchor="bottom" id="Version Control" order="3" sideWeight="0.49919224" weight="0.3275488" />
-      <window_info anchor="bottom" id="Python Console" order="4" weight="0.3242059" />
+      <window_info anchor="bottom" id="Version Control" order="3" sideWeight="0.49919224" weight="0.3264642" />
+      <window_info anchor="bottom" id="Python Console" order="4" weight="0.32321042" />
       <window_info anchor="bottom" id="Docker" order="5" show_stripe_button="false" />
       <window_info anchor="bottom" id="Message" order="6" />
       <window_info anchor="bottom" id="Find" order="7" weight="0.3286334" />
-      <window_info anchor="bottom" id="Run" order="8" sideWeight="0.49840087" visible="true" weight="0.3263965" />
+      <window_info active="true" anchor="bottom" id="Run" order="8" sideWeight="0.49840087" visible="true" weight="0.32321042" />
       <window_info anchor="bottom" id="Debug" order="9" weight="0.36692223" />
       <window_info anchor="bottom" id="Cvs" order="10" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="11" weight="0.4" />
@@ -526,7 +573,7 @@
       <window_info anchor="right" id="SciView" order="2" />
       <window_info anchor="right" id="Ant Build" order="3" weight="0.25" />
       <window_info anchor="right" content_ui="combo" id="Hierarchy" order="4" weight="0.25" />
-      <window_info anchor="right" x="0" y="0" width="434" height="856" id="Documentation" order="5" side_tool="true" weight="0.21428572" />
+      <window_info anchor="right" x="0" y="0" width="434" height="856" id="Documentation" order="5" side_tool="true" weight="0.2138635" />
     </layout>
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -583,7 +630,9 @@
     <MESSAGE value="20190626" />
     <MESSAGE value="#20190627 根据上次要求重新更改维普的写入" />
     <MESSAGE value="#20190627 完成知网" />
-    <option name="LAST_COMMIT_MESSAGE" value="#20190627 完成知网" />
+    <MESSAGE value="20190628 hcj 重写整体结构 完善不存在的话插入更新" />
+    <MESSAGE value="20190628 hcj 重写整体结构 完善不存在的话插入更新 +sql" />
+    <option name="LAST_COMMIT_MESSAGE" value="20190628 hcj 重写整体结构 完善不存在的话插入更新 +sql" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -669,24 +718,21 @@
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
     <SUITE FILE_PATH="coverage/CnkiCrawler$PublicDef.coverage" NAME="PublicDef Coverage Results" MODIFIED="1561709620041" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/CnkiCrawler$HCJ_Buff_Control.coverage" NAME="HCJ_Buff_Control Coverage Results" MODIFIED="1561018157882" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/CnkiCrawler$Wanfang_main.coverage" NAME="Wanfang_main Coverage Results" MODIFIED="1561952011859" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/CnkiCrawler$HCJ_DB_Helper.coverage" NAME="HCJ_DB_Helper Coverage Results" MODIFIED="1561363457640" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
-    <SUITE FILE_PATH="coverage/CnkiCrawler$Cnki_main.coverage" NAME="Cnki_main Coverage Results" MODIFIED="1561685399194" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/CnkiCrawler$Cnki_main.coverage" NAME="Cnki_main Coverage Results" MODIFIED="1561949742038" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/CnkiCrawler$ThreadCrawler.coverage" NAME="ThreadCrawler Coverage Results" MODIFIED="1560999093519" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/CnkiCrawler$zhengze.coverage" NAME="zhengze Coverage Results" MODIFIED="1561607953412" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/CnkiCrawler$test1.coverage" NAME="test1 Coverage Results" MODIFIED="1561709554869" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
-    <SUITE FILE_PATH="coverage/CnkiCrawler$Cqvip_main.coverage" NAME="Cqvip_main Coverage Results" MODIFIED="1561685612943" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/CnkiCrawler$Cqvip_main.coverage" NAME="Cqvip_main Coverage Results" MODIFIED="1561950792775" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/CnkiCrawler$test.coverage" NAME="test Coverage Results" MODIFIED="1560913699180" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
-    <SUITE FILE_PATH="coverage/CnkiCrawler$main.coverage" NAME="main Coverage Results" MODIFIED="1561713009993" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/CnkiCrawler$main.coverage" NAME="main Coverage Results" MODIFIED="1561952268013" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/CnkiCrawler$weipu.coverage" NAME="weipu Coverage Results" MODIFIED="1560926741412" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/lunwen_spider" />
     <SUITE FILE_PATH="coverage/CnkiCrawler$3k.coverage" NAME="3k Coverage Results" MODIFIED="1560924199571" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/CnkiCrawler$Cqvip_main_test.coverage" NAME="Cqvip_main_test Coverage Results" MODIFIED="1561376971908" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/CnkiCrawler$spider_main.coverage" NAME="spider_main Coverage Results" MODIFIED="1561102582723" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/CNKICrawler" />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://C:/python37/Lib/ntpath.py" />
-    <entry file="file://$PROJECT_DIR$/lunwen_spider/weipu.py" />
-    <entry file="file://$PROJECT_DIR$/3.py" />
-    <entry file="file://$PROJECT_DIR$/spider_main.py" />
     <entry file="file://$PROJECT_DIR$/spider_paper.py" />
     <entry file="file://$PROJECT_DIR$/ThreadCrawler.py" />
     <entry file="file://$PROJECT_DIR$/s.py" />
@@ -813,51 +859,10 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$APPLICATION_HOME_DIR$/helpers/typeshed/stdlib/3/multiprocessing/__init__.pyi">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="200">
-          <caret line="73" column="4" selection-start-line="73" selection-start-column="4" selection-end-line="73" selection-end-column="4" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/zhengze.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="216">
           <caret line="8" column="34" selection-start-line="8" selection-end-line="8" selection-end-column="34" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/Wanfang_main.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="291">
-          <caret line="315" column="48" selection-start-line="315" selection-start-column="30" selection-end-line="315" selection-end-column="48" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/test1.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="470">
-          <caret line="183" column="35" lean-forward="true" selection-start-line="183" selection-start-column="35" selection-end-line="183" selection-end-column="35" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/HCJ_DB_Helper.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="108">
-          <caret line="92" selection-start-line="92" selection-end-line="92" />
-          <folding>
-            <element signature="e#122#133#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/main.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="513">
-          <caret line="19" selection-start-line="19" selection-end-line="19" />
-          <folding>
-            <element signature="e#104#126#0" expanded="true" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -868,9 +873,23 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$APPLICATION_HOME_DIR$/helpers/typeshed/stdlib/3/multiprocessing/__init__.pyi">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1620">
+          <caret line="73" column="4" selection-start-line="73" selection-start-column="4" selection-end-line="73" selection-end-column="4" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/test1.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="4941">
+          <caret line="183" column="35" selection-start-line="183" selection-start-column="35" selection-end-line="183" selection-end-column="35" />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/HCJ_Buff_Control.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="188">
+        <state relative-caret-position="972">
           <caret line="38" column="43" selection-start-line="38" selection-start-column="36" selection-end-line="38" selection-end-column="43" />
           <folding>
             <element signature="e#86#121#0" expanded="true" />
@@ -878,10 +897,65 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://C:/python37/Lib/site-packages/requests/certs.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-23">
+          <caret line="1" column="23" lean-forward="true" selection-start-line="1" selection-start-column="23" selection-end-line="1" selection-end-column="23" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://C:/python37/Lib/site-packages/requests/utils.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="191">
+          <caret line="23" selection-start-line="23" selection-end-line="23" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://C:/python37/Lib/site-packages/requests/__init__.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="191">
+          <caret line="111" selection-start-line="111" selection-end-line="111" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/HCJ_DB_Helper.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="191">
+          <caret line="92" selection-start-line="92" selection-end-line="92" />
+          <folding>
+            <element signature="e#122#133#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/sql.txt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1053">
+          <caret line="39" selection-start-line="39" selection-end-line="39" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/PublicDef.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="952">
+          <caret line="44" column="44" lean-forward="true" selection-start-line="44" selection-start-column="44" selection-end-line="44" selection-end-column="44" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Cnki_main.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="210">
+          <caret line="77" column="70" selection-start-line="77" selection-start-column="65" selection-end-line="77" selection-end-column="70" />
+          <folding>
+            <element signature="e#110#122#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/Cqvip_main.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="6172">
-          <caret line="277" column="89" selection-start-line="277" selection-start-column="73" selection-end-line="277" selection-end-column="89" />
+        <state relative-caret-position="327">
+          <caret line="371" column="15" lean-forward="true" selection-start-line="371" selection-start-column="15" selection-end-line="371" selection-end-column="15" />
           <folding>
             <element signature="n#!!doc" />
             <element signature="e#111#126#0" expanded="true" />
@@ -889,26 +963,29 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/Wanfang_main.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-1196">
+          <caret line="115" column="31" selection-start-line="115" selection-start-column="31" selection-end-line="115" selection-end-column="31" />
+          <folding>
+            <element signature="e#115#127#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/Config.ini">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="130">
-          <caret line="28" lean-forward="true" selection-start-line="28" selection-end-line="28" />
+        <state relative-caret-position="459">
+          <caret line="38" column="11" selection-start-line="38" selection-start-column="11" selection-end-line="38" selection-end-column="11" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/PublicDef.py">
+    <entry file="file://$PROJECT_DIR$/main.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="146">
-          <caret line="52" column="12" lean-forward="true" selection-start-line="52" selection-start-column="12" selection-end-line="52" selection-end-column="12" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/Cnki_main.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="359">
-          <caret line="142" column="31" lean-forward="true" selection-start-line="142" selection-start-column="31" selection-end-line="142" selection-end-column="31" />
+        <state relative-caret-position="385">
+          <caret line="19" column="36" selection-start-line="19" selection-start-column="36" selection-end-line="19" selection-end-column="36" />
           <folding>
-            <element signature="e#110#122#0" expanded="true" />
+            <element signature="e#104#126#0" expanded="true" />
           </folding>
         </state>
       </provider>
