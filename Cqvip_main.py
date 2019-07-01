@@ -128,7 +128,7 @@ class Cqvip_Crawler:
             self.title = Read_buff(file_buff=self.SettingPath, settion=SearchDBName, info='title')
             self.authors = Read_buff(file_buff=self.SettingPath, settion=SearchDBName, info='authors')
             self.keywords = Read_buff(file_buff=self.SettingPath, settion=SearchDBName, info='keywords')
-            self.publication = Read_buff(file_buff=self.SettingPath, settion=SearchDBName, info='publication')
+            self.unit = Read_buff(file_buff=self.SettingPath, settion=SearchDBName, info='unit')
             self.BaseKeyword = ""
             if RemoveSpecialCharacter(self.title) != "":
                 self.BaseKeyword = self.BaseKeyword + "&k=" + quote(self.title)
@@ -136,8 +136,8 @@ class Cqvip_Crawler:
                 self.BaseKeyword = self.BaseKeyword + "&w=" + quote(self.authors)
             if RemoveSpecialCharacter(self.keywords) != "":
                 self.BaseKeyword = self.BaseKeyword + "&k=" + quote(self.keywords)
-            if RemoveSpecialCharacter(self.publication) != "":
-                self.BaseKeyword = self.BaseKeyword + "&o=" + quote(self.publication)
+            if RemoveSpecialCharacter(self.unit) != "":
+                self.BaseKeyword = self.BaseKeyword + "&o=" + quote(self.unit)
 
         else:
             # Todo
@@ -369,5 +369,4 @@ def ProcessMain():
     init_main()
     main()
 if __name__ == '__main__':
-    init_main()
-    main()
+    ProcessMain()
