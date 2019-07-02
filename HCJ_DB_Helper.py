@@ -22,7 +22,6 @@ DBPORT =Read_buff(file_buff="Config.ini", settion="DB",info='DBPORT')
 
 
 class HCJ_MySQL:
-    print("HCJ_MySQL1")
     pool = None
     limit_count = 3  # 最低预启动数据库连接数量
     def __init__(self,log=None,dbname=None,dbhost=None):
@@ -38,6 +37,7 @@ class HCJ_MySQL:
         self._dbuser = DBUSER
         self._dbpassword = DBPWD
         self._dbcharset = DBCHARSET
+
         self._dbport = int(DBPORT)
         self._logger = log
         self.is_connect_first = False

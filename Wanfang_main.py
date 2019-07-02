@@ -7,12 +7,11 @@
 import queue
 import sys
 import threading
-
+import requests
 from urllib.error import URLError, HTTPError
 import math
 from urllib.parse import quote
 import multiprocessing
-import requests
 from HCJ_py_timer import LoopTimer
 import urllib.request
 from bs4 import BeautifulSoup
@@ -22,6 +21,8 @@ import re
 from HCJ_Buff_Control import Read_buff,Write_buff
 # 构造不同条件的关键词搜索
 from HCJ_DB_Helper import HCJ_MySQL
+from PublicDef import CreatResultDBTable, CreatUrlBuffTable, ShowStatePro
+
 values = {
            '1': 'k',  # 标题
            '2': 'w',  # 作者
@@ -32,6 +33,7 @@ SearchDBName = 'Wanfang'
 headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; WOW64; rv:23.0) Gecko/20100101 Firefox/23.0'}
 concurrent = 5 # 采集线程数
 conparse = 10 # 解析线程数
+renum = 0
 # 生成请求队列
 req_list = queue.Queue()
 # 生成数据队列 ，请求以后，响应内容放到数据队列里
@@ -97,10 +99,15 @@ class Crawl(threading.Thread): #采集线程类
             url = self.req_list.get()
             # print('%d号线程采集：%s' % (self.number, url))
             # 防止请求频率过快，随机设置阻塞时间
-            time.sleep(random.randint(5,6))
+            time.sleep(random.randint(3, 5))
             # 发起http请求，获取响应内容，追加到数据队列里，等待解析
             response = Wanfang.VisitHtml(url)
             self.data_list.put([url, response])  # 向数据队列里追加
+    # def GetSoup(self,url=None):
+    #     req = urllib.request.Request(url=url, headers=headers)
+    #     html = urllib.request.urlopen(req).read()
+    #     soup = BeautifulSoup(html, 'lxml')
+    #     return soup
 
 
 def InitDict():
@@ -124,7 +131,7 @@ def InsetDbbyDict(table, Dict):
         db.upda_sql("Update `databuff` set `State`=-10 where `Url`='%s' " % Dict['url'])
 
 
-class ClockProcess(multiprocessing.Process):  # multiprocessing.Process产生的时子进程
+class ClockProcess(multiprocessing.Process):  # multiprocessing.Process产生的是子进程
     def __init__(self, interval):
         multiprocessing.Process.__init__(self)
         self.interval = interval
@@ -135,26 +142,6 @@ class ClockProcess(multiprocessing.Process):  # multiprocessing.Process产生的
         _Wanfang.GetAllUrl()
         print("采集链接结束")
 
-
-def ShowStatePro():
-    sql_count_all = "select count(*) from `databuff` where 1"
-    num_all = int(db.do_sql_one(sql_count_all)[0])
-    sql_count_done = "select count(*) from `databuff` where `State`=20"
-    num_done = int(db.do_sql_one(sql_count_done)[0])
-    sql_count_done_not_in_year = "select count(*) from `databuff` where `State`=-5"
-    num_done_not_in_year = int(db.do_sql_one(sql_count_done_not_in_year)[0])
-    num_done_not_in_year = num_done_not_in_year if num_done_not_in_year > 0 else 0
-    num_done = num_done + num_done_not_in_year
-    if num_all == 0:
-        num_all = 1
-    print(
-        "#############################################目前有%s条数据，其中已处理的有%s，其中年份不符合的有%s,处理完成度为%.2f,##############################" % (
-            num_all, num_done, num_done_not_in_year, (int(num_done) / int(num_all)) * 100))
-    if int(Read_buff(file_buff="Config.ini", settion="Wanfang", info='flag_get_all_url')) == 1 and num_all == num_done:
-        # 完成全部
-        Write_buff(file_buff="Config.ini", settion="Wanfang", info="stopflag", state=1)
-        print("爬取结束")
-        sys.exit()
 
 
 class WanFangCrawler:
@@ -174,6 +161,10 @@ class WanFangCrawler:
             self.EndTime=Read_buff(file_buff=self.SettingPath,settion=self.SearchName,info='endtime') # 结束年份
             self.StartPage=Read_buff(file_buff=self.SettingPath,settion=self.SearchName,info='startpage') # 开始页数
             self.MaxPage=Read_buff(file_buff=self.SettingPath,settion=self.SearchName,info='maxpage') # 开始页数
+            self.title = Read_buff(file_buff=self.SettingPath, settion=SearchDBName, info='title')
+            self.authors = Read_buff(file_buff=self.SettingPath, settion=SearchDBName, info='authors')
+            self.keywords = Read_buff(file_buff=self.SettingPath, settion=SearchDBName, info='keywords')
+            self.unit = Read_buff(file_buff=self.SettingPath, settion=SearchDBName, info='unit')
         else:
             # Todo
             pass
@@ -195,7 +186,6 @@ class WanFangCrawler:
     def GetMaxPage(self):
         total_record_num = 0
         index_url = self.GetBaseUrl()
-
         response = self.VisitHtml(url=index_url)
         if self.running:
             html = BeautifulSoup(response.text, "html.parser")  # 获取HTML代码
@@ -209,10 +199,10 @@ class WanFangCrawler:
             print("查询到共%s相关文献" % total_record_num)
             page_count = int(math.ceil(total_record_num / self._Perpage))  # 总页数
             self.MaxPage = page_count
-            # if page_count > self.MaxPage:  # 当页码非常大的时候，对页码进行限制
-            #     page_count = self.MaxPage
+            if self.MaxPage > 100:  # 最大记录数只能达到5000条，即100页每页50条
+                self.MaxPage = 100
             Write_buff(file_buff="Config.ini", settion="Wanfang", info="maxpage", state=self.MaxPage)
-            return total_record_num, page_count, index_url
+            return total_record_num, self.MaxPage, index_url
 
     def VisitHtml(self, url):
         """
@@ -239,13 +229,13 @@ class WanFangCrawler:
                 if attempts == 20:
                     self.running = False
                     return False
-            except requests.exceptions.ReadTimeout:
+            except requests.exceptions.ReadTimeout or requests.exceptions.ConnectTimeout:
                 print("请求连接超时")
+                return False
             else:
                 return response
 
     def GetAllUrl(self):
-
         total_record_num, self.MaxPage, index_url = self.GetMaxPage()  # 最大页数
         self.StartPage = Read_buff(file_buff=self.SettingPath, settion=self.SearchName, info='startpage')  # 开始页数
         t = time.time()
@@ -253,9 +243,9 @@ class WanFangCrawler:
         for i in range(int(self.StartPage), self.MaxPage + 1):
             print("共有%s页，当前为%s页，获得文献链接的进度完成%.2f" % (self.MaxPage, i, (int(i) / int(self.MaxPage)) * 100))
             Write_buff(file_buff="Config.ini", settion="Wanfang", info="startpage", state=i + 1)
-            url_list=self.GetFurtherUrl(i, index_url)
-            # print(url_list)
+            url_list = self.GetFurtherUrl(i, index_url)
             threading.Thread(target=self.WriteUrlIntoDB, args=(url_list,)).start()
+            # self.further_url.extend(self.GetFurtherUrl(i, index_url))
             time.sleep(0.5)
         Write_buff(file_buff="Config.ini", settion="Wanfang", info="flag_get_all_url", state=1)
         print(time.time() - t)
@@ -269,7 +259,6 @@ class WanFangCrawler:
         """
         url_list = []
         index_url = index_url + '&page=' + str(page_num)  # 翻页
-        # print(index_url)
         response = self.VisitHtml(index_url)
         if self.running:
             bs = BeautifulSoup(response.text, "html.parser")
@@ -283,13 +272,9 @@ class WanFangCrawler:
             return url_list
 
     def WriteUrlIntoDB(self, url):
-        for i in url:
-            sql = "INSERT INTO `databuff` (`Url`, `source`) VALUES ('%s', '%s')" % (i, SearchDBName)
+        for i in range(len(url)):
+            sql = "INSERT INTO `databuff` (`Url`, `source`) VALUES ('%s', '%s');\n" % (url[i], SearchDBName)
             row = self.db.insert(sql)
-            if not row['result']:
-                print(row)
-
-
 
     def GetFurtherPaper(self, _url, _soup):
         _Paper = InitDict()
@@ -365,7 +350,7 @@ class WanFangCrawler:
                         _Paper['year'] = item.get_text()
                     if '基金项目：' in screen and ('作者单位' not in screen):
                         sponser = item.get_text().strip('\n').replace('\n', ';')  # 基金项目
-                        _Paper['sponser'] = sponser
+                        _Paper['sponser'] = sponser.replace("'", "")
                     if '页数：' in screen and ('作者单位' not in screen):
                         page_num = item.get_text()  # 页数
                     if '页码：' in screen and ('作者单位' not in screen):
@@ -373,12 +358,11 @@ class WanFangCrawler:
                         _Paper['pagecode'] = page_number
                     if '刊名：' in screen and ('作者单位' not in screen):
                         publication = item.get_text().strip('\n')  # 刊名
-                        _Paper['publication'] = publication
-                _Paper['title'] = title
+                        _Paper['publication'] = publication.replace("'", "")
+                _Paper['title'] = title.replace("'", "")
                 _Paper['url'] = _url
                 _Paper['abstract'] = abstract.replace("'", "")
                 _Paper['type'] = literature_type
-            print(_Paper)
             InsetDbbyDict("`crawler`.`result`", _Paper)
         # print(_Paper)
         return _Paper
@@ -419,56 +403,13 @@ def PutUrlToList(Wanfang, num):
         pass
 
 
-def CreatUrlBuffTable(TableName):
-    CreatDBTableSql = '\
-            CREATE TABLE IF NOT EXISTS `%s` (\
-            `Index` int(11) unsigned NOT NULL AUTO_INCREMENT,\
-            `Url` VARCHAR(255) DEFAULT NULL,\
-            `State` INT(11) NULL DEFAULT \'0\'  COMMENT \'-5 日期不对 -10 出现错误 0 初始 10 处理中 20 处理结束\',\
-            `Datetime` DATETIME NULL DEFAULT CURRENT_TIMESTAMP,\
-            `Source` VARCHAR(200) NULL DEFAULT NULL,\
-            UNIQUE INDEX `Url` (`Url`),\
-            PRIMARY KEY (`Index`)\
-            ) ENGINE=InnoDB DEFAULT CHARSET=utf8; ' % TableName
-    dict_result = db.upda_sql(CreatDBTableSql)
-    if not dict_result:
-        print("创建%s表出现问题" % TableName)
-
-def CreatResultDBTable(TableName):
-    '''
-    创建结构数据库表单，如果不存在就创建
-    :return:
-    '''
-    CreatDBTableSql = '\
-        CREATE TABLE IF NOT EXISTS `%s` (\
-          `id` int(11) unsigned NOT NULL AUTO_INCREMENT,\
-          `url` varchar(255) DEFAULT NULL, \
-          `title` varchar(200) DEFAULT NULL,\
-          `authors` varchar(200) DEFAULT NULL,\
-          `unit` text DEFAULT NULL,\
-          `publication` varchar(200) DEFAULT NULL,\
-          `keywords` varchar(200) DEFAULT NULL,\
-          `abstract` text DEFAULT NULL,\
-          `year` varchar(200) DEFAULT NULL,\
-          `volume` varchar(200) DEFAULT NULL,\
-          `issue` varchar(200) DEFAULT NULL,\
-          `pagecode` varchar(200) DEFAULT NULL,\
-          `doi` varchar(200) DEFAULT NULL,\
-          `sponser` text DEFAULT NULL,\
-          `type` varchar(200) DEFAULT NULL,\
-          `source` VARCHAR(200) NULL DEFAULT NULL,\
-          PRIMARY KEY (`id`)\
-        ) ENGINE=InnoDB DEFAULT CHARSET=utf8; ' % TableName
-    dict_result = db.upda_sql(CreatDBTableSql)
-    if not dict_result:
-        print("创建%s表出现问题" % TableName)
 
 
 def main():
     ClockProcess(1).start()  # 开始多线程，时间间隔为1秒
-    PutUrlToList(Wanfang, 20)  # 往队列queue放20条数据，
+    PutUrlToList(Wanfang, 20)  # 往队列queue放20条数据，进不进
     LoopTimer(0.5, PutUrlToList, args=(Wanfang, 20,)).start()
-    LoopTimer(1, ShowStatePro).start()
+    LoopTimer(1, ShowStatePro,args=(db,SearchDBName)).start()
     # 生成N个采集线程
     req_thread = []
     for i in range(concurrent):
@@ -488,22 +429,26 @@ def main():
 
 
 def init_main():
-    if int(Read_buff(file_buff="Config.ini", settion="Wanfang", info='restart')) == 1:
-        CreatResultDBTable("result")
-        CreatUrlBuffTable("databuff")
-        db.do_sql("TRUNCATE `databuff`;")  # 清空databuff表
-        db.do_sql("TRUNCATE `result`;")  # 清空result表
-        Write_buff(file_buff="Config.ini", settion="Wanfang", info="restart", state=0)
-        Write_buff(file_buff="Config.ini", settion="Wanfang", info="startpage", state=1)
-        Write_buff(file_buff="Config.ini", settion="Wanfang", info="stopflag", state=0)
-        Write_buff(file_buff="Config.ini", settion="Wanfang", info="flag_get_all_url", state=0)
-
-
-
-if __name__ == '__main__':
-    multiprocessing.freeze_support()  # 在Windows下运行有可能崩溃(开启了一大堆新窗口、进程)，可以通过freeze_support()来解决
+    if int(Read_buff(file_buff="Config.ini", settion=SearchDBName, info='restart')) == 1:
+        CreatResultDBTable(db, "result")
+        CreatUrlBuffTable(db, "databuff")
+        db.do_sql("TRUNCATE `databuff`;")
+        db.do_sql("TRUNCATE `result`;")
+        Write_buff(file_buff="Config.ini", settion=SearchDBName, info="restart", state=0)
+        Write_buff(file_buff="Config.ini", settion=SearchDBName, info="startpage", state=1)
+        Write_buff(file_buff="Config.ini", settion=SearchDBName, info="stopflag", state=0)
+        Write_buff(file_buff="Config.ini", settion=SearchDBName, info="flag_get_all_url", state=0)
+    if int(Read_buff(file_buff="Config.ini", settion=SearchDBName, info='restart')) == 0:
+        db.upda_sql("Update `databuff` set `State`=0 where `State`=10")
+    time.sleep(1)
+def ProcessMain():
+    global db,Wanfang
+    multiprocessing.freeze_support()  #
     db = HCJ_MySQL()
     Wanfang = WanFangCrawler(db=db)
     init_main()
-    main()
+    if int(Read_buff(file_buff="Config.ini", settion=SearchDBName, info='stopflag')) == 0:
+        main()
 
+if __name__ == '__main__':
+    ProcessMain()

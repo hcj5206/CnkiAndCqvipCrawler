@@ -74,7 +74,7 @@ class Cnki_Crawler:
             # Todo
             pass
     def GetMaxPage(self):
-        keywordval = self.BaseKeyword
+
         index_url = 'http://search.cnki.com.cn/Search.aspx?q=' + quote(self.BaseKeyword)  # quote方法把汉字转换为encodeuri?
 
         soup = GetSoup(url=index_url)
@@ -90,7 +90,7 @@ class Cnki_Crawler:
         t=time.time()
         Write_buff(file_buff="Config.ini", settion=SearchDBName, info="flag_get_all_url", state=0)
         for i in range(int(self.StartPage),self.MaxPage):
-            print("%s采集器共有%s页，当前为%s页，获得文献链接的进度完成%.2f" % (SearchDBName,self.MaxPage, i,(int(i)/int(self.MaxPage))*100))
+            print("Cnki：共有%s页，当前为%s页，获得文献链接的进度完成%.2f" % (self.MaxPage, i,(int(i)/int(self.MaxPage))*100))
             Write_buff(file_buff="Config.ini", settion=SearchDBName, info="startpage", state=i+1)
             keywordval = self.BaseKeyword
             page_url = 'http://search.cnki.com.cn/Search.aspx?q=%s&p=%s'%(quote(keywordval),(i-1)*15)
@@ -133,7 +133,7 @@ class Parse(threading.Thread):
         self.is_parse = True  # 判断是否从数据队列里提取数据
 
     def run(self):
-        print('启动%d号解析线程' % self.number)
+        print('Cnki：启动%d号解析线程' % self.number)
         # 无限循环，
         while True:
             # 如何判断解析线程的结束条件
@@ -159,7 +159,7 @@ class Parse(threading.Thread):
 
                 break  # 结束while 无限循环
 
-        print('退出%d号解析线程' % self.number)
+        print('Cnki：退出%d号解析线程' % self.number)
 class Crawl(threading.Thread): #采集线程类
     # 初始化
     def __init__(self, number, req_list, data_list):
@@ -176,12 +176,12 @@ class Crawl(threading.Thread): #采集线程类
 
     def run(self):
         # 输出启动线程信息
-        print('启动采集线程%d号' % self.number)
+        print("Cnki：启动采集线程%d号" % self.number)
         # 如果请求队列不为空，则无限循环，从请求队列里拿请求url
         while self.req_list.qsize() > 0 or int(Read_buff(file_buff="Config.ini", settion=SearchDBName,info='stopflag'))==0:
             # 从请求队列里提取url
             url = self.req_list.get()
-            # print('%d号线程采集：%s' % (self.number, url))
+            # print('Cnki：%d号线程采集：%s' % (self.number, url))
             # 防止请求频率过快，随机设置阻塞时间
             time.sleep(0.5)
             # 发起http请求，获取响应内容，追加到数据队列里，等待解析
@@ -196,7 +196,7 @@ class ClockProcess(multiprocessing.Process):
         _db=HCJ_MySQL()
         _Cqvip = Cnki_Crawler(db=_db)
         _Cqvip.WriteAllUrlIntoDBMain()
-        print("获取全部url结束")
+        print("Cnki：获取全部url结束")
 def Up_division_int(A, B):
     '''
      向上整除
@@ -216,28 +216,7 @@ def PutUrlToList(Cnki,num):
             for url in UrlList:
                 req_list.put(url)
     else:pass
-def ShowStatePro():
-    sql_count_all = "select count(*) from `databuff` where 1"
-    num_all = int(db.do_sql_one(sql_count_all)[0])
-    sql_count_done = "select count(*) from `databuff` where `State`=20"
-    num_done = int(db.do_sql_one(sql_count_done)[0])
-    sql_count_error = "select count(*) from `databuff` where `State`=-15"
-    num_error = int(db.do_sql_one(sql_count_error)[0])
-    num_error = num_error if num_error > 0 else 0
-    sql_count_done_not_in_year = "select count(*) from `databuff` where `State`=-5"
-    num_done_not_in_year = int(db.do_sql_one(sql_count_done_not_in_year)[0])
-    num_done_not_in_year = num_done_not_in_year if num_done_not_in_year > 0 else 0
-    num_done = num_done + num_done_not_in_year+num_error
-    if num_all == 0:
-        num_all = 1
-    print(
-        "%s采集器#############################################目前有%s条数据，其中已处理的有%s，其中年份不符合的有%s,无效链接%s,处理完成度为%.2f,##############################" % (
-            SearchDBName,num_all, num_done, num_done_not_in_year,num_error, (int(num_done) / int(num_all)) * 100))
-    if int(Read_buff(file_buff="Config.ini", settion=SearchDBName, info='flag_get_all_url')) == 1 and num_all == num_done:
-        # 完成全部
-        Write_buff(file_buff="Config.ini", settion=SearchDBName, info="stopflag", state=1)
-        print("爬取结束")
-        sys.exit()
+
 def GetSoup(url=None):
     try:
         req = urllib.request.Request(url=url, headers=headers)
@@ -245,7 +224,7 @@ def GetSoup(url=None):
         soup = BeautifulSoup(html, 'lxml')
     except:
         db.upda_sql("update `databuff` set `State`=-15 where `Url`='%s'"%(url))
-        print("Cnki:出现一次连接失败")
+        print("Cnki：出现一次连接失败")
         soup=False
     return soup
 def parse(url,_soup):
@@ -278,14 +257,14 @@ def parse(url,_soup):
             _Paper['issue'] =_Paper['issue'].split("期")[0] if _Paper['issue'] != "" else _Paper['issue']
             InsetDbbyDict("`crawler`.`result`", _Paper,db)
         except:
-            db.upda_sql("update `databuff` set `State`=-16 where `Url`='%s'" % (_Paper['url']))
+            db.upda_sql("update `databuff` set `State`=-15 where `Url`='%s'" % (_Paper['url']))
             print(_Paper['url'],"goup解析出现错误")
 def main():
     multiprocessing.freeze_support()
     ClockProcess().start()
     PutUrlToList(Cnki, 20)
     LoopTimer(0.5, PutUrlToList, args=(Cnki, 20,)).start()
-    LoopTimer(1, ShowStatePro).start()
+    LoopTimer(1, ShowStatePro,args=(db,SearchDBName,)).start()
     # 生成N个采集线程
     time.sleep(1)
     req_thread = []
@@ -313,37 +292,18 @@ def init_main():
         Write_buff(file_buff="Config.ini", settion=SearchDBName, info="startpage", state=1)
         Write_buff(file_buff="Config.ini", settion=SearchDBName, info="stopflag", state=0)
         Write_buff(file_buff="Config.ini", settion=SearchDBName, info="flag_get_all_url", state=0)
-def main1(argv):
-    import sys, getopt
-    Input = SearchMode= StartTime =  EndTime = StartPage = ""
-    try:
-      opts, args = getopt.getopt(argv,"hk:m:s:e:",["help", "mode=","end=", "start="])
-    except getopt.GetoptError:
-      print('main.py -i <inputfile> -o <outputfile>')
-      sys.exit(2)
-    for opt, arg in opts:
-      if opt == '-h':
-         print('main.py -i <inputfile> -o <outputfile>')
-         sys.exit()
-      elif opt == "-k":
-         Input = arg
-      elif opt in ("-m","--mode"):
-         SearchMode = arg
-      elif opt in( "--start","-s"):
-          StartTime = arg
-
-      elif opt in("--end","-e"):
-          EndTime = arg
-    print('输入关键词为：', Input)
-    print('输入模式为：', SearchMode)
-    print('输入开始时间为：', StartTime)
-    print('输入结束时间为：', EndTime)
+    if int(Read_buff(file_buff="Config.ini", settion=SearchDBName, info='restart')) == 0:
+        db.upda_sql("Update `databuff` set `State`=0 where `State`=10")
+    time.sleep(1)
 def ProcessMain():
+    global db, Cnki
+    db = HCJ_MySQL()
+    Cnki = Cnki_Crawler(db=db)
     multiprocessing.freeze_support()  # 多进程打包的话必须加上
     init_main()
-    main()
+    if int(Read_buff(file_buff="Config.ini", settion=SearchDBName, info='stopflag')) == 0:
+        main()
 
-db = HCJ_MySQL()
-Cnki = Cnki_Crawler(db=db)
+
 if __name__ == '__main__':
     ProcessMain()

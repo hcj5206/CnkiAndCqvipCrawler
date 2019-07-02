@@ -228,7 +228,7 @@ def parse( url, _soup):
     deff2 = _soup.select('table', class_="datainfo f14")
     _Paper['abstract'] = deff2[0].text.replace('\n', '').split('：', 1)[1].split('：')[1]  # 获得【摘要】
     p = deff2[1].text
-    _Paper['type'] = deff2[1].text.split('【分　类】', 1)[1].split('【关键词】')[0].replace('\n', '')  # 获得【分类】
+    # _Paper['type'] = deff2[1].text.split('【分　类】', 1)[1].split('【关键词】')[0].replace('\n', '')  # 获得【分类】
     _Paper['keywords'] = deff2[1].text.split('【关键词】', 1)[1].split('【出　处】')[0].replace('\n', '')  # 获得【关键词】
     StrComeFrom = deff2[1].text.split('【出　处】', 1)[1].split('【收　录】')[0].replace('\n', '')
     Strlist = re.split(r"[;,\s]\s*", StrComeFrom)
@@ -270,35 +270,11 @@ def PutUrlToList(Cqvip, num):
     else:
         pass
 
-
-def ShowStatePro():
-    sql_count_all = "select count(*) from `databuff` where 1"
-    num_all = int(db.do_sql_one(sql_count_all)[0])
-    sql_count_done = "select count(*) from `databuff` where `State`=20"
-    num_done = int(db.do_sql_one(sql_count_done)[0])
-    sql_count_error = "select count(*) from `databuff` where `State`=-15"
-    num_error = int(db.do_sql_one(sql_count_error)[0])
-    num_error = num_error if num_error > 0 else 0
-    sql_count_done_not_in_year = "select count(*) from `databuff` where `State`=-5"
-    num_done_not_in_year = int(db.do_sql_one(sql_count_done_not_in_year)[0])
-    num_done_not_in_year = num_done_not_in_year if num_done_not_in_year > 0 else 0
-    num_done = num_done + num_done_not_in_year+num_error
-    if num_all == 0:
-        num_all = 1
-    print(
-        "%s采集器#############################################目前有%s条数据，其中已处理的有%s，其中年份不符合的有%s,无效链接%s,处理完成度为%.2f,##############################" % (
-            SearchDBName,num_all, num_done, num_done_not_in_year,num_error, (int(num_done) / int(num_all)) * 100))
-    if int(Read_buff(file_buff="Config.ini", settion=SearchDBName, info='flag_get_all_url')) == 1 and num_all == num_done:
-        # 完成全部
-        Write_buff(file_buff="Config.ini", settion=SearchDBName, info="stopflag", state=1)
-        print("爬取结束")
-        sys.exit()
-
 def main():
     ClockProcess(Cqvip_Crawler).start()
     PutUrlToList(Cqvip, 20)
     LoopTimer(0.5, PutUrlToList, args=(Cqvip, 20,)).start()
-    LoopTimer(1, ShowStatePro).start()
+    LoopTimer(1, ShowStatePro,args=(db,SearchDBName)).start()
     # 生成N个采集线程
     req_thread = []
     for i in range(concurrent):
@@ -326,7 +302,9 @@ def init_main():
         Write_buff(file_buff="Config.ini", settion=SearchDBName, info="startpage", state=1)
         Write_buff(file_buff="Config.ini", settion=SearchDBName, info="stopflag", state=0)
         Write_buff(file_buff="Config.ini", settion=SearchDBName, info="flag_get_all_url", state=0)
-
+    if int(Read_buff(file_buff="Config.ini", settion=SearchDBName, info='restart')) == 0:
+        db.upda_sql("Update `databuff` set `State`=0 where `State`=10")
+    time.sleep(1)
 
 def main1(argv):
     #
@@ -362,11 +340,14 @@ def main1(argv):
     # args = parser.parse_args()
     # cityname = args.cityname
     # maxpages = args.maxpages
-db = HCJ_MySQL()
-Cqvip = Cqvip_Crawler(db=db)
+
 def ProcessMain():
+    global db,Cqvip
+    db = HCJ_MySQL()
+    Cqvip = Cqvip_Crawler(db=db)
     multiprocessing.freeze_support()  # 多进程打包的话必须加上
     init_main()
-    main()
+    if int(Read_buff(file_buff="Config.ini", settion=SearchDBName, info='stopflag')) == 0:
+        main()
 if __name__ == '__main__':
     ProcessMain()

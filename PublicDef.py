@@ -4,6 +4,10 @@
 # @File    : PublicDef.py
 # datetime:2019/6/27 19:59
 import re
+import sys
+import time
+
+from HCJ_Buff_Control import Read_buff, Write_buff
 
 
 def CreatUrlBuffTable(db,TableName):
@@ -93,3 +97,25 @@ def InsetDbbyDict(table,Dict,db):
         db.upda_sql(sql_update1)
         sql_update = "Update `databuff` set `State`=20 where `Url`='%s' " % str(Dict['url']).replace('>', "%")
         db.upda_sql(sql_update)
+def ShowStatePro(db,SearchDBName):
+    sql_count_all = "select count(*) from `databuff` where `Source`='%s'"%SearchDBName
+    num_all = int(db.do_sql_one(sql_count_all)[0])
+    sql_count_done = "select count(*) from `databuff` where `State`=20 and `Source`='%s'"%SearchDBName
+    num_done = int(db.do_sql_one(sql_count_done)[0])
+    sql_count_error = "select count(*) from `databuff` where `State`=-15 and `Source`='%s'"%SearchDBName
+    num_error = int(db.do_sql_one(sql_count_error)[0])
+    num_error = num_error if num_error > 0 else 0
+    sql_count_done_not_in_year = "select count(*) from `databuff` where `State`=-5 and `Source`='%s'"%SearchDBName
+    num_done_not_in_year = int(db.do_sql_one(sql_count_done_not_in_year)[0])
+    num_done_not_in_year = num_done_not_in_year if num_done_not_in_year > 0 else 0
+    num_done = num_done + num_done_not_in_year+num_error
+    if num_all > 0:
+        print(
+            "%s采集器#############################################目前有%s条数据，其中已处理的有%s，其中年份不符合的有%s,无效链接%s,处理完成度为%.2f,##############################" % (
+                SearchDBName,num_all, num_done, num_done_not_in_year,num_error, (int(num_done) / int(num_all)) * 100))
+    if int(Read_buff(file_buff="Config.ini", settion=SearchDBName, info='flag_get_all_url')) == 1 and num_all == num_done:
+        # 完成全部
+        Write_buff(file_buff="Config.ini", settion=SearchDBName, info="stopflag", state=1)
+        time.sleep(5)
+        print("%s：爬取结束"%SearchDBName)
+        sys.exit()
