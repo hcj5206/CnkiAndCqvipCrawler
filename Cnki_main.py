@@ -20,24 +20,8 @@ from HCJ_Buff_Control import Read_buff,Write_buff
 #构造不同条件的关键词搜索
 from HCJ_DB_Helper import HCJ_MySQL
 SearchDBName="Cnki"
-# 构造不同条件的关键词搜索
-# values = {
-#     '全文': 'qw',
-#     '主题': 'theme',
-#     '篇名': 'title',
-#     '作者': 'author',
-#     '摘要': 'abstract'
-# }
+
 from PublicDef import *
-
-values = {
-    '1': 'qw',
-    '2': 'theme',
-    '3': 'title',
-    '4': 'author',
-    '5': 'abstract'
-}
-
 headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; WOW64; rv:23.0) Gecko/20100101 Firefox/23.0'}
 concurrent = 5 # 采集线程数
 conparse = 10 # 解析线程数
@@ -76,10 +60,8 @@ class Cnki_Crawler:
     def GetMaxPage(self):
 
         index_url = 'http://search.cnki.com.cn/Search.aspx?q=' + quote(self.BaseKeyword)  # quote方法把汉字转换为encodeuri?
-
         soup = GetSoup(url=index_url)
         pagesum_text = soup.find('span', class_='page-sum').get_text()
-
         summarys = math.ceil(int(pagesum_text[7:-1]))
         self.MaxPage=Up_division_int(summarys,int(15))
         Write_buff(file_buff="Config.ini", settion=SearchDBName, info="maxpage", state=self.MaxPage)
@@ -107,19 +89,19 @@ class Cnki_Crawler:
                 Href = deff[k].a['href']
                 url = Href
                 #_UrlList.append(url)
-                sql="INSERT INTO `crawler`.`databuff` ( `Url`,`Source`) VALUES ('%s','%s');\n" % (
+                sql="INSERT INTO `crawler`.`%s` ( `Url`,`Source`) VALUES ('%s','%s');\n" % (DbDatabuff,
                      url,SearchDBName)
                 row = self.db.insert(sql) # 插入
 
 
     def GetUrlFromDb(self,num=20):
-        sql="select `Index`,`Url` from `databuff` where `State`in (0,-10) and `Source`='%s'  limit %s "%(SearchDBName,num)
+        sql="select `Index`,`Url` from `%s` where `State`in (0,-10) and `Source`='%s'  limit %s "%(DbDatabuff,SearchDBName,num)
         _rows=self.db.do_sql(sql)
         if _rows:
             if len(_rows)>0:
                 _UrlList=[x[1] for x in _rows]
                 for i in [x[0] for x in _rows]:
-                    self.db.upda_sql("update `databuff` set `State`=10 where `Index`='%s'"%i)
+                    self.db.upda_sql("update `%s` set `State`=10 where `Index`='%s'"%(DbDatabuff,i))
                 return _UrlList
         else:
             return ""
@@ -223,7 +205,7 @@ def GetSoup(url=None):
         html = urllib.request.urlopen(req,timeout=3).read()
         soup = BeautifulSoup(html, 'lxml')
     except:
-        db.upda_sql("update `databuff` set `State`=-15 where `Url`='%s'"%(url))
+        db.upda_sql("update `%s` set `State`=-15 where `Url`='%s'"%(DbDatabuff,url))
         print("Cnki：出现一次连接失败")
         soup=False
     return soup
@@ -255,16 +237,16 @@ def parse(url,_soup):
             _Paper['year']=_Paper['year'].split("年")[0] if _Paper['year']!="" else _Paper['year']
             _Paper['issue']=re.search(r'\d+期', publicationScope).group() if "期" in publicationScope else ""
             _Paper['issue'] =_Paper['issue'].split("期")[0] if _Paper['issue'] != "" else _Paper['issue']
-            InsetDbbyDict("`crawler`.`result`", _Paper,db)
+            InsetDbbyDict("`crawler`.`%s`"%Dbresult, _Paper,db,DbDatabuff,Dbresult)
         except:
-            db.upda_sql("update `databuff` set `State`=-15 where `Url`='%s'" % (_Paper['url']))
+            db.upda_sql("update `%s` set `State`=-15 where `Url`='%s'" % (DbDatabuff,_Paper['url']))
             print(_Paper['url'],"goup解析出现错误")
 def main():
     multiprocessing.freeze_support()
     ClockProcess().start()
     PutUrlToList(Cnki, 20)
     LoopTimer(0.5, PutUrlToList, args=(Cnki, 20,)).start()
-    LoopTimer(1, ShowStatePro,args=(db,SearchDBName,)).start()
+    LoopTimer(1, ShowStatePro,args=(db,SearchDBName,DbDatabuff,Dbresult,)).start()
     # 生成N个采集线程
     time.sleep(1)
     req_thread = []
@@ -284,17 +266,19 @@ def main():
         t.join()
 def init_main():
     if int(Read_buff(file_buff="Config.ini", settion=SearchDBName, info='restart')) == 1:
-        CreatResultDBTable(db,"result")
-        CreatUrlBuffTable(db,"databuff")
-        db.do_sql("TRUNCATE `databuff`;")
-        db.do_sql("TRUNCATE `result`;")
+        CreatResultDBTable(db,Dbresult)
+        CreatUrlBuffTable(db,DbDatabuff)
         Write_buff(file_buff="Config.ini", settion=SearchDBName, info="restart", state=0)
         Write_buff(file_buff="Config.ini", settion=SearchDBName, info="startpage", state=1)
         Write_buff(file_buff="Config.ini", settion=SearchDBName, info="stopflag", state=0)
         Write_buff(file_buff="Config.ini", settion=SearchDBName, info="flag_get_all_url", state=0)
     if int(Read_buff(file_buff="Config.ini", settion=SearchDBName, info='restart')) == 0:
-        db.upda_sql("Update `databuff` set `State`=0 where `State`=10")
+        db.upda_sql("Update `%s` set `State`=0 where `State`=10"%DbDatabuff)
     time.sleep(1)
+
+ex_dbname = Read_buff(file_buff="Config.ini", settion=SearchDBName, info='ex_dbname')
+DbDatabuff="databuff"+str(ex_dbname)
+Dbresult="result"+str(ex_dbname)
 def ProcessMain():
     global db, Cnki
     db = HCJ_MySQL()
@@ -304,6 +288,6 @@ def ProcessMain():
     if int(Read_buff(file_buff="Config.ini", settion=SearchDBName, info='stopflag')) == 0:
         main()
 
-
 if __name__ == '__main__':
+
     ProcessMain()

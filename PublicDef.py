@@ -36,7 +36,7 @@ def CreatResultDBTable(db,TableName):
           `url` varchar(200) DEFAULT NULL, \
           `title` varchar(200) DEFAULT NULL,\
           `authors` varchar(200) DEFAULT NULL,\
-          `unit` varchar(200) DEFAULT NULL,\
+          `unit` text  DEFAULT NULL,\
           `publication` varchar(200) DEFAULT NULL,\
           `keywords` varchar(200) DEFAULT NULL,\
           `abstract` text DEFAULT NULL,\
@@ -58,7 +58,7 @@ def RemoveSpecialCharacter(str1):
     cop = re.compile(r"[^\u4e00-\u9fa5^.^a-z^A-Z^0-9]")
     string1 = cop.sub('', str(str1))  # 将string1中匹配到的字符替换成空字符
     return string1
-def InsetDbbyDict(table,Dict,db):
+def InsetDbbyDict(table,Dict,db,DbDatabuff,Dbresult):
     COLstr = ''  # 列的字段
     ROWstr = ''  # 行字段
     SearchDbname=""
@@ -75,8 +75,8 @@ def InsetDbbyDict(table,Dict,db):
         SearchDbname="wanfang"
     sql = "INSERT INTO %s (%s,`source`) VALUES (%s,'%s');" % (
         table,COLstr[:-1], ROWstr[:-1],SearchDbname)
-    sql_select="select count(*) from `result` where `title`='%s' and `publication` LIKE '%%%%%s%%%%'"%((Dict['title']),((Dict['publication'])))
-    sql_update="Update `databuff` set `State`=20 where `Url`='%s' "%str(Dict['url']).replace('>', "%")
+    sql_select="select count(*) from `%s` where `title`='%s' and `publication` LIKE '%%%%%s%%%%'"%(Dbresult,(Dict['title']),((Dict['publication'])))
+    sql_update="Update `%s` set `State`=20 where `Url`='%s' "%(DbDatabuff,str(Dict['url']).replace('>', "%"))
     result_count=db.do_sql_one(sql_select)
     if  result_count[0]==0 or result_count[0]=='0':
         result_dic=db.insert(sql)
@@ -85,7 +85,7 @@ def InsetDbbyDict(table,Dict,db):
             db.upda_sql(sql_update)
         else:
             print(result_dic['err'])
-            db.upda_sql("Update `databuff` set `State`=-10 where `Url`='%s' "%str(Dict['url']))
+            db.upda_sql("Update `%s` set `State`=-10 where `Url`='%s' "%(DbDatabuff,str(Dict['url'])))
     else:
         str1=""
         for key in list(Dict.keys()):
@@ -93,27 +93,27 @@ def InsetDbbyDict(table,Dict,db):
                 col = key
                 row = Dict[key]
                 str1 = str1 + "`%s`=(case when `%s`='' then '%s' else `%s` end )," % (col, col, row, col)
-        sql_update1 = "update `result` set `url`=concat(`url`,';%s'),`source`=concat(`source`,';%s'),%s where `title`='%s' and `publication` LIKE '%%%%%s%%%%'" % (Dict['url'], SearchDbname,str1[:-1], ((Dict['title'])), ((Dict['publication'])))
+        sql_update1 = "update `%s` set `url`=concat(`url`,';%s'),`source`=concat(`source`,';%s'),%s where `title`='%s' and `publication` LIKE '%%%%%s%%%%'" % (Dbresult,Dict['url'], SearchDbname,str1[:-1], ((Dict['title'])), ((Dict['publication'])))
         db.upda_sql(sql_update1)
-        sql_update = "Update `databuff` set `State`=20 where `Url`='%s' " % str(Dict['url']).replace('>', "%")
+        sql_update = "Update `%s` set `State`=20 where `Url`='%s' " % (DbDatabuff,str(Dict['url']).replace('>', "%"))
         db.upda_sql(sql_update)
-def ShowStatePro(db,SearchDBName):
-    sql_count_all = "select count(*) from `databuff` where `Source`='%s'"%SearchDBName
+def ShowStatePro(db,SearchDBName,DbDatabuff,Dbresult):
+    sql_count_all = "select count(*) from `%s` where `Source`='%s'"%(DbDatabuff,SearchDBName)
     num_all = int(db.do_sql_one(sql_count_all)[0])
-    sql_count_done = "select count(*) from `databuff` where `State`=20 and `Source`='%s'"%SearchDBName
+    sql_count_done = "select count(*) from `%s` where `State`=20 and `Source`='%s'"%(DbDatabuff,SearchDBName)
     num_done = int(db.do_sql_one(sql_count_done)[0])
-    sql_count_error = "select count(*) from `databuff` where `State`=-15 and `Source`='%s'"%SearchDBName
+    sql_count_error = "select count(*) from `%s` where `State`=-15 and `Source`='%s'"%(DbDatabuff,SearchDBName)
     num_error = int(db.do_sql_one(sql_count_error)[0])
     num_error = num_error if num_error > 0 else 0
-    sql_count_done_not_in_year = "select count(*) from `databuff` where `State`=-5 and `Source`='%s'"%SearchDBName
+    sql_count_done_not_in_year = "select count(*) from `%s` where `State`=-5 and `Source`='%s'"%(DbDatabuff,SearchDBName)
     num_done_not_in_year = int(db.do_sql_one(sql_count_done_not_in_year)[0])
     num_done_not_in_year = num_done_not_in_year if num_done_not_in_year > 0 else 0
     num_done = num_done + num_done_not_in_year+num_error
     if num_all > 0:
         print(
-            "%s采集器#############################################目前有%s条数据，其中已处理的有%s，其中年份不符合的有%s,无效链接%s,处理完成度为%.2f,##############################" % (
+            "%s采集器：#############################################目前有%s条数据，其中已处理的有%s，其中年份不符合的有%s,无效链接%s,处理完成度为%.2f,##############################" % (
                 SearchDBName,num_all, num_done, num_done_not_in_year,num_error, (int(num_done) / int(num_all)) * 100))
-    if int(Read_buff(file_buff="Config.ini", settion=SearchDBName, info='flag_get_all_url')) == 1 and num_all == num_done:
+    if '1' in str(Read_buff(file_buff="Config.ini", settion=SearchDBName, info='flag_get_all_url')) and num_all == num_done:
         # 完成全部
         Write_buff(file_buff="Config.ini", settion=SearchDBName, info="stopflag", state=1)
         time.sleep(5)

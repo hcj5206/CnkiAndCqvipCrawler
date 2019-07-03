@@ -181,19 +181,19 @@ class Cqvip_Crawler:
                     Href = deff[k].a['href'].replace('\\', '')
                     url = "http://www.cqvip.com/" + quote(Href)
                     # _UrlList.append(url)
-                    sql = "INSERT INTO `crawler`.`databuff` ( `Url`,`Source`) VALUES ('%s','%s');" % (
-                       url,SearchDBName)
+                    sql = "INSERT INTO `crawler`.`%s` ( `Url`,`Source`) VALUES ('%s','%s');" % (DbDatabuff,url,SearchDBName)
+
                     row = self.db.insert(sql)  # 插入
 
 
     def GetUrlFromDb(self, num=20):
-        sql = "select `Index`,`Url` from `databuff` where `State`in (0,-10) and `Source`='%s' limit %s " % (SearchDBName,num)
+        sql = "select `Index`,`Url` from `%s` where `State`in (0,-10) and `Source`='%s' limit %s " % (DbDatabuff,SearchDBName,num)
         _rows = self.db.do_sql(sql)
         if _rows:
             if len(_rows) > 0:
                 _UrlList = [x[1] for x in _rows]
                 for i in [x[0] for x in _rows]:
-                    self.db.upda_sql("update `databuff` set `State`=10 where `Index`='%s'" % i)
+                    self.db.upda_sql("update `%s` set `State`=10 where `Index`='%s'" % (DbDatabuff,i))
                 return _UrlList
         else:
             return ""
@@ -210,43 +210,49 @@ def GetSoup(url=None):
         html = urllib.request.urlopen(req,timeout=3).read()
         soup = BeautifulSoup(html, 'lxml')
     except:
-        db.upda_sql("update `databuff` set `State`=-15 where `Url`='%s'"%(url))
+        db.upda_sql("update `%s` set `State`=-15 where `Url`='%s'"%(DbDatabuff,url))
         print("Cqvip:出现一次连接失败")
         soup=False
     return soup
 
 
 def parse( url, _soup):
-    _Paper = InitDict()
-    deff = _soup.find('span', class_="detailtitle")
-    _Paper['url'] = url  # 获得【链接】
-    _Paper['title'] = deff.find('h1').text  # 获得【标题】
-    str1 = deff.find('strong').text.split('\xa0\xa0')
-    _Paper['publication'] = re.search(r'《(.*)》', str1[0].split('|')[0]).group()  # 获得【单位】
-    _Paper['authors'] = str1[0].split('|')[1]  # 获得【作者】
-    _Paper['unit'] = str1[1]  # 获得【出版社】
-    deff2 = _soup.select('table', class_="datainfo f14")
-    _Paper['abstract'] = deff2[0].text.replace('\n', '').split('：', 1)[1].split('：')[1]  # 获得【摘要】
-    p = deff2[1].text
-    # _Paper['type'] = deff2[1].text.split('【分　类】', 1)[1].split('【关键词】')[0].replace('\n', '')  # 获得【分类】
-    _Paper['keywords'] = deff2[1].text.split('【关键词】', 1)[1].split('【出　处】')[0].replace('\n', '')  # 获得【关键词】
-    StrComeFrom = deff2[1].text.split('【出　处】', 1)[1].split('【收　录】')[0].replace('\n', '')
-    Strlist = re.split(r"[;,\s]\s*", StrComeFrom)
-    t = 0
-    for st in Strlist:
-        if st:
-            if "年" in st:
-                if '》' in st:
-                    _Paper['year'] = st.split('》')[1]  # 获得【日期】只要数字
-                else:
-                    _Paper['year'] = st
-                _Paper['year'] = re.search(r'\d+', _Paper['year']).group()
-            if "共" not in st and "页" in st:
-                _Paper['pagecode'] = st.split('页')[0] if '页' in st else st  # 获得【页码】
-            if "期" in st:
-                _Paper['issue'] = re.search(r'\d+', st).group()  # 获得【期】
-    # print(_Paper)
-    InsetDbbyDict("`crawler`.`result`", _Paper,db)
+    if _soup is not None:
+        _Paper = InitDict()
+        _Paper['url'] = url  # 获得【链接】
+        try:
+            deff = _soup.find('span', class_="detailtitle")
+            _Paper['title'] = deff.find('h1').text  # 获得【标题】
+            str1 = deff.find('strong').text.split('\xa0\xa0')
+            _Paper['publication'] = re.search(r'《(.*)》', str1[0].split('|')[0]).group()  # 获得【单位】
+            _Paper['authors'] = str1[0].split('|')[1]  # 获得【作者】
+            _Paper['unit'] = str1[1]  # 获得【出版社】
+            deff2 = _soup.select('table', class_="datainfo f14")
+            _Paper['abstract'] = deff2[0].text.replace('\n', '').split('：', 1)[1].split('：')[1]  # 获得【摘要】
+            p = deff2[1].text
+            # _Paper['type'] = deff2[1].text.split('【分　类】', 1)[1].split('【关键词】')[0].replace('\n', '')  # 获得【分类】
+            _Paper['keywords'] = deff2[1].text.split('【关键词】', 1)[1].split('【出　处】')[0].replace('\n', '')  # 获得【关键词】
+            StrComeFrom = deff2[1].text.split('【出　处】', 1)[1].split('【收　录】')[0].replace('\n', '')
+            Strlist = re.split(r"[;,\s]\s*", StrComeFrom)
+            t = 0
+            for st in Strlist:
+                if st:
+                    if "年" in st:
+                        if '》' in st:
+                            _Paper['year'] = st.split('》')[1]  # 获得【日期】只要数字
+                        else:
+                            _Paper['year'] = st
+                        _Paper['year'] = re.search(r'\d+', _Paper['year']).group()
+                    if "共" not in st and "页" in st:
+                        _Paper['pagecode'] = st.split('页')[0] if '页' in st else st  # 获得【页码】
+                    if "期" in st:
+                        _Paper['issue'] = re.search(r'\d+', st).group()  # 获得【期】
+            InsetDbbyDict("`crawler`.`%s`" % Dbresult, _Paper, db,DbDatabuff,Dbresult)
+        except:
+            db.upda_sql("update `%s` set `State`=-15 where `Url`='%s'" % (DbDatabuff,_Paper['url']))
+            print(_Paper['url'],"goup解析出现错误")
+        # print(_Paper)
+
 
 
 class ClockProcess(multiprocessing.Process):
@@ -274,7 +280,7 @@ def main():
     ClockProcess(Cqvip_Crawler).start()
     PutUrlToList(Cqvip, 20)
     LoopTimer(0.5, PutUrlToList, args=(Cqvip, 20,)).start()
-    LoopTimer(1, ShowStatePro,args=(db,SearchDBName)).start()
+    LoopTimer(1, ShowStatePro,args=(db,SearchDBName,DbDatabuff,Dbresult,)).start()
     # 生成N个采集线程
     req_thread = []
     for i in range(concurrent):
@@ -293,54 +299,20 @@ def main():
         t.join()
 
 def init_main():
-    if int(Read_buff(file_buff="Config.ini", settion=SearchDBName, info='restart')) == 1:
-        CreatResultDBTable(db,"result")
-        CreatUrlBuffTable(db,"databuff")
-        db.do_sql("TRUNCATE `databuff`;")
-        db.do_sql("TRUNCATE `result`;")
+    if '1' in str(Read_buff(file_buff="Config.ini", settion=SearchDBName, info='restart')):
+        CreatResultDBTable(db,Dbresult)
+        CreatUrlBuffTable(db,DbDatabuff)
         Write_buff(file_buff="Config.ini", settion=SearchDBName, info="restart", state=0)
         Write_buff(file_buff="Config.ini", settion=SearchDBName, info="startpage", state=1)
         Write_buff(file_buff="Config.ini", settion=SearchDBName, info="stopflag", state=0)
         Write_buff(file_buff="Config.ini", settion=SearchDBName, info="flag_get_all_url", state=0)
-    if int(Read_buff(file_buff="Config.ini", settion=SearchDBName, info='restart')) == 0:
-        db.upda_sql("Update `databuff` set `State`=0 where `State`=10")
+    if '0' in str(Read_buff(file_buff="Config.ini", settion=SearchDBName, info='restart')):
+        db.upda_sql("Update `%s` set `State`=0 where `State`=10"%DbDatabuff)
     time.sleep(1)
 
-def main1(argv):
-    #
-    import sys, getopt
-    Input = SearchMode = StartTime = EndTime = StartPage = ""
-    try:
-        opts, args = getopt.getopt(argv, "hk:m:s:e:", ["help", "mode=", "end=", "start="])
-    except getopt.GetoptError:
-        print('main.py -i <inputfile> -o <outputfile>')
-        sys.exit(2)
-    for opt, arg in opts:
-        if opt == '-h':
-            print('main.py -i <inputfile> -o <outputfile>')
-            sys.exit()
-        elif opt == "-k":
-            Input = arg
-        elif opt in ("-m", "--mode"):
-            SearchMode = arg
-        elif opt in ("--start", "-s"):
-            StartTime = arg
-
-        elif opt in ("--end", "-e"):
-            EndTime = arg
-    print('输入关键词为：', Input)
-    print('输入模式为：', SearchMode)
-    print('输入开始时间为：', StartTime)
-    print('输入结束时间为：', EndTime)
-    #
-    #参数化输入命令行
-    # parser = argparse.ArgumentParser(description="Spider for gourmet shops in meituan.")
-    # parser.add_argument('-ct', dest='cityname', help='The city you choose to crawl.', default='杭州')
-    # parser.add_argument('-p', dest='maxpages', help='Max pages to crawl.', default=50, type=int)
-    # args = parser.parse_args()
-    # cityname = args.cityname
-    # maxpages = args.maxpages
-
+ex_dbname = Read_buff(file_buff="Config.ini", settion=SearchDBName, info='ex_dbname')
+DbDatabuff="databuff"+str(ex_dbname)
+Dbresult="result"+str(ex_dbname)
 def ProcessMain():
     global db,Cqvip
     db = HCJ_MySQL()
