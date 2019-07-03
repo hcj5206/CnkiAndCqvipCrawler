@@ -247,10 +247,11 @@ def parse( url, _soup):
                         _Paper['pagecode'] = st.split('页')[0] if '页' in st else st  # 获得【页码】
                     if "期" in st:
                         _Paper['issue'] = re.search(r'\d+', st).group()  # 获得【期】
+
             InsetDbbyDict("`crawler`.`%s`" % Dbresult, _Paper, db,DbDatabuff,Dbresult)
         except:
             db.upda_sql("update `%s` set `State`=-15 where `Url`='%s'" % (DbDatabuff,_Paper['url']))
-            print(_Paper['url'],"goup解析出现错误")
+            print(_Paper['url'],_Paper['title'],"goup解析出现错误")
         # print(_Paper)
 
 
@@ -302,6 +303,7 @@ def init_main():
     if '1' in str(Read_buff(file_buff="Config.ini", settion=SearchDBName, info='restart')):
         CreatResultDBTable(db,Dbresult)
         CreatUrlBuffTable(db,DbDatabuff)
+        time.sleep(0.05)
         Write_buff(file_buff="Config.ini", settion=SearchDBName, info="restart", state=0)
         Write_buff(file_buff="Config.ini", settion=SearchDBName, info="startpage", state=1)
         Write_buff(file_buff="Config.ini", settion=SearchDBName, info="stopflag", state=0)
@@ -322,4 +324,9 @@ def ProcessMain():
     if int(Read_buff(file_buff="Config.ini", settion=SearchDBName, info='stopflag')) == 0:
         main()
 if __name__ == '__main__':
-    ProcessMain()
+   # ProcessMain()
+   db = HCJ_MySQL()
+   Cqvip = Cqvip_Crawler(db=db)
+   url="http://www.cqvip.com/%22/QK/96262X/201404/663135600.html%22"
+   g=GetSoup(url)
+   parse(url,g)

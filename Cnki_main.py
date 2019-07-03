@@ -60,11 +60,14 @@ class Cnki_Crawler:
     def GetMaxPage(self):
 
         index_url = 'http://search.cnki.com.cn/Search.aspx?q=' + quote(self.BaseKeyword)  # quote方法把汉字转换为encodeuri?
-        soup = GetSoup(url=index_url)
-        pagesum_text = soup.find('span', class_='page-sum').get_text()
-        summarys = math.ceil(int(pagesum_text[7:-1]))
-        self.MaxPage=Up_division_int(summarys,int(15))
-        Write_buff(file_buff="Config.ini", settion=SearchDBName, info="maxpage", state=self.MaxPage)
+        try:
+            soup = GetSoup(url=index_url)
+            pagesum_text = soup.find('span', class_='page-sum').get_text()
+            summarys = math.ceil(int(pagesum_text[7:-1]))
+            self.MaxPage=Up_division_int(summarys,int(15))
+            Write_buff(file_buff="Config.ini", settion=SearchDBName, info="maxpage", state=self.MaxPage)
+        except:
+            print(index_url,"获得最大出错")
         return summarys,self.MaxPage
     def WriteAllUrlIntoDBMain(self):
         summarys,self.MaxPage = self.GetMaxPage()  # 最大页数
@@ -265,15 +268,16 @@ def main():
     for t in parse_thread:
         t.join()
 def init_main():
-    if int(Read_buff(file_buff="Config.ini", settion=SearchDBName, info='restart')) == 1:
-        CreatResultDBTable(db,Dbresult)
-        CreatUrlBuffTable(db,DbDatabuff)
+    if '1' in str(Read_buff(file_buff="Config.ini", settion=SearchDBName, info='restart')):
+        CreatResultDBTable(db, Dbresult)
+        CreatUrlBuffTable(db, DbDatabuff)
+        time.sleep(0.02)
         Write_buff(file_buff="Config.ini", settion=SearchDBName, info="restart", state=0)
         Write_buff(file_buff="Config.ini", settion=SearchDBName, info="startpage", state=1)
         Write_buff(file_buff="Config.ini", settion=SearchDBName, info="stopflag", state=0)
         Write_buff(file_buff="Config.ini", settion=SearchDBName, info="flag_get_all_url", state=0)
-    if int(Read_buff(file_buff="Config.ini", settion=SearchDBName, info='restart')) == 0:
-        db.upda_sql("Update `%s` set `State`=0 where `State`=10"%DbDatabuff)
+    if '0' in str(Read_buff(file_buff="Config.ini", settion=SearchDBName, info='restart')):
+        db.upda_sql("Update `%s` set `State`=0 where `State`=10" % DbDatabuff)
     time.sleep(1)
 
 ex_dbname = Read_buff(file_buff="Config.ini", settion=SearchDBName, info='ex_dbname')

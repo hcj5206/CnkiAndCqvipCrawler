@@ -15,17 +15,14 @@ def Write_buff(file_buff="Config.ini", settion="Cqvip", info=None, state=None):
     if info == "":
         return
     if os.path.exists(file_buff):
-        config.read(file_buff,encoding='utf-8-sig')
-        if not config.has_section(settion):
-            config.add_section(settion)
-        config.set(settion, info, str(state))
-        config.write(open(file_buff, "w+", encoding='utf-8-sig'))
+        try:
+            config.read(file_buff,encoding='utf-8-sig')
+            config.set(settion, info, str(state))
+            config.write(open(file_buff, "w+", encoding='utf-8-sig'))
+        except:
+            print("jhha")
     else:
-        config.add_section(settion)
-        config.write(open(file_buff, "w+"))
-        config.read(file_buff)
-        config.set(settion, info, str(state))
-        config.write(open(file_buff, "w+", encoding='utf-8-sig'))
+        pass
 
 def Read_buff(file_buff="Config.ini", settion="info", info=None):
     if os.path.exists(file_buff):

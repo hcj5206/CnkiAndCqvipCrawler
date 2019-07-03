@@ -81,7 +81,7 @@ def InsetDbbyDict(table,Dict,db,DbDatabuff,Dbresult):
     if  result_count[0]==0 or result_count[0]=='0':
         result_dic=db.insert(sql)
 
-        if  result_dic['result']:#shantui
+        if  result_dic['result']:#
             db.upda_sql(sql_update)
         else:
             print(result_dic['err'])

@@ -21,7 +21,7 @@ import re
 from HCJ_Buff_Control import Read_buff,Write_buff
 # 构造不同条件的关键词搜索
 from HCJ_DB_Helper import HCJ_MySQL
-from PublicDef import CreatResultDBTable, CreatUrlBuffTable, ShowStatePro, RemoveSpecialCharacter
+from PublicDef import CreatResultDBTable, CreatUrlBuffTable, ShowStatePro, RemoveSpecialCharacter, InsetDbbyDict
 
 values = {
            '1': 'k',  # 标题
@@ -114,21 +114,6 @@ def InitDict():
     dir = {'url': '', 'title' :'','authors':'','unit' :'','publication' :'','keywords' :'','abstract' :'','year' :'','volume' :'','issue' :'','pagecode' :'','doi' :'','string' :'','sponser' :'','type' :''}
     return dir
 
-def InsetDbbyDict(table, Dict):
-    sql = "INSERT INTO %s (`url`, `title`, `authors`, `unit`, `publication`, `keywords`, `abstract`, `year`, `volume`, " \
-          "`issue`, `pagecode`, `doi`, `sponser`, `type`, `source`) VALUES ('%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', " \
-          "'%s', '%s', '%s', '%s', '%s', '%s', '%s');\n" % \
-          (table, Dict['url'], Dict['title'], Dict['authors'], Dict['unit'], Dict['publication'], Dict['keywords'],
-           Dict['abstract'], Dict['year'], Dict['volume'], Dict['issue'], Dict['pagecode'], Dict['doi'], Dict['sponser'],
-           Dict['type'], SearchDBName)
-
-    sql_update = "Update `%s` set `State`=20 where `Url`='%s' " %(DbDatabuff, Dict['url'])
-    result_dic = db.insert(sql)
-    if result_dic['result']:
-        db.upda_sql(sql_update)
-    else:
-        print(result_dic['err'])
-        db.upda_sql("Update `%s` set `State`=-10 where `Url`='%s' " % (DbDatabuff,Dict['url']))
 
 
 class ClockProcess(multiprocessing.Process):  # multiprocessing.Process产生的是子进程
@@ -293,8 +278,9 @@ class WanFangCrawler:
         _Paper['url'] = _url
         all_author = ''
         if self.running:
-            html = BeautifulSoup(_soup.text, "html.parser")  # 获取HTML代码
+
             try:
+                html = BeautifulSoup(_soup.text, "html.parser")  # 获取HTML代码
                 title = html.find('font', {'style': 'font-weight:bold;'})
                 title = title.get_text()
                 abstract = html.find('div', class_='abstract')
@@ -373,7 +359,7 @@ class WanFangCrawler:
 
                 _Paper['abstract'] = abstract.replace("'", "")
                 _Paper['type'] = literature_type
-                InsetDbbyDict("`crawler`.`%s`"%Dbresult, _Paper)
+                InsetDbbyDict("`crawler`.`%s`"%Dbresult, _Paper,DbDatabuff,Dbresult)
             except:
                 db.upda_sql("update `%s` set `State`=-15 where `Url`='%s'" % (DbDatabuff, _Paper['url']))
                 print(_Paper['url'], "goup解析出现错误")
@@ -442,15 +428,16 @@ def main():
 
 
 def init_main():
-    if '1' in str(Read_buff(file_buff="Config.ini", settion=SearchDBName, info='restart')) :
+    if '1' in str(Read_buff(file_buff="Config.ini", settion=SearchDBName, info='restart')):
         CreatResultDBTable(db, Dbresult)
-        CreatUrlBuffTable(db,DbDatabuff)
+        CreatUrlBuffTable(db, DbDatabuff)
+        time.sleep(0.1)
         Write_buff(file_buff="Config.ini", settion=SearchDBName, info="restart", state=0)
         Write_buff(file_buff="Config.ini", settion=SearchDBName, info="startpage", state=1)
         Write_buff(file_buff="Config.ini", settion=SearchDBName, info="stopflag", state=0)
         Write_buff(file_buff="Config.ini", settion=SearchDBName, info="flag_get_all_url", state=0)
     if '0' in str(Read_buff(file_buff="Config.ini", settion=SearchDBName, info='restart')):
-        db.upda_sql("Update `%s` set `State`=0 where `State`=10"%DbDatabuff)
+        db.upda_sql("Update `%s` set `State`=0 where `State`=10" % DbDatabuff)
     time.sleep(1)
 ex_dbname = Read_buff(file_buff="Config.ini", settion=SearchDBName, info='ex_dbname')
 DbDatabuff="databuff"+str(ex_dbname)
