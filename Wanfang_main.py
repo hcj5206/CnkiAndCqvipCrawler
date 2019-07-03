@@ -122,13 +122,13 @@ def InsetDbbyDict(table, Dict):
            Dict['abstract'], Dict['year'], Dict['volume'], Dict['issue'], Dict['pagecode'], Dict['doi'], Dict['sponser'],
            Dict['type'], SearchDBName)
 
-    sql_update = "Update `databuff` set `State`=20 where `Url`='%s' " % Dict['url']
+    sql_update = "Update `%s` set `State`=20 where `Url`='%s' " %(DbDatabuff, Dict['url'])
     result_dic = db.insert(sql)
     if result_dic['result']:
         db.upda_sql(sql_update)
     else:
         print(result_dic['err'])
-        db.upda_sql("Update `databuff` set `State`=-10 where `Url`='%s' " % Dict['url'])
+        db.upda_sql("Update `%s` set `State`=-10 where `Url`='%s' " % (DbDatabuff,Dict['url']))
 
 
 class ClockProcess(multiprocessing.Process):  # multiprocessing.Process产生的是子进程
@@ -238,7 +238,7 @@ class WanFangCrawler:
                 if attempts == 20:
                     self.running = False
                     return False
-            except requests.exceptions.ReadTimeout or requests.exceptions.ConnectTimeout:
+            except requests.exceptions.ReadTimeout or requests.exceptions.ConnectionError:
                 print("请求连接超时")
                 return False
             else:
@@ -282,23 +282,21 @@ class WanFangCrawler:
 
     def WriteUrlIntoDB(self, url):
         for i in range(len(url)):
-            sql = "INSERT INTO `databuff` (`Url`, `source`) VALUES ('%s', '%s');\n" % (url[i], SearchDBName)
+            sql = "INSERT INTO `%s` (`Url`, `source`) VALUES ('%s', '%s');\n" % (DbDatabuff,url[i], SearchDBName)
             row = self.db.insert(sql)
-            if not row['result']:
-                print('_'*40)
-                print(url[i])
+            # if not row['result']:
+            #     print('_'*40)
+            #     print(url[i])
 
     def GetFurtherPaper(self, _url, _soup):
         _Paper = InitDict()
+        _Paper['url'] = _url
         all_author = ''
         if self.running:
             html = BeautifulSoup(_soup.text, "html.parser")  # 获取HTML代码
             try:
                 title = html.find('font', {'style': 'font-weight:bold;'})
                 title = title.get_text()
-            except:
-                print('您的IP访问过于频繁，请输入验证码后继续使用')
-            else:
                 abstract = html.find('div', class_='abstract')
                 if abstract:
                     abstract = abstract.text.split('摘要')[0].replace('\n', '')
@@ -372,21 +370,24 @@ class WanFangCrawler:
                         publication = item.get_text().strip('\n')  # 刊名
                         _Paper['publication'] = publication.replace("'", "")
                 _Paper['title'] = title.replace("'", "")
-                _Paper['url'] = _url
+
                 _Paper['abstract'] = abstract.replace("'", "")
                 _Paper['type'] = literature_type
-            InsetDbbyDict("`crawler`.`result`", _Paper)
+                InsetDbbyDict("`crawler`.`%s`"%Dbresult, _Paper)
+            except:
+                db.upda_sql("update `%s` set `State`=-15 where `Url`='%s'" % (DbDatabuff, _Paper['url']))
+                print(_Paper['url'], "goup解析出现错误")
         # print(_Paper)
         return _Paper
 
     def GetUrlFromDb(self, num=20):
-        sql = "SELECT `Source`,`Url` from `databuff` where `State`in (0,-10) limit %s " % num  # 一次读20条URL用于爬取数据
+        sql = "SELECT `Source`,`Url` from `%s` where `State`in (0,-10) limit %s " % (DbDatabuff,num)  # 一次读20条URL用于爬取数据
         _rows = self.db.do_sql(sql)
         if _rows:
             if len(_rows)>0:
                 _UrlList=[x[1] for x in _rows]
                 for i in _UrlList:
-                    self.db.upda_sql("update `databuff` set `State`=10 where `Url`='%s'" % i)
+                    self.db.upda_sql("update `%s` set `State`=10 where `Url`='%s'" % (DbDatabuff,i))
                 return _UrlList
         else:
             return ""
@@ -441,14 +442,14 @@ def main():
 
 
 def init_main():
-    if int(Read_buff(file_buff="Config.ini", settion=SearchDBName, info='restart')) == 1:
-        CreatResultDBTable(db, "result")
+    if '1' in str(Read_buff(file_buff="Config.ini", settion=SearchDBName, info='restart')) :
+        CreatResultDBTable(db, Dbresult)
         CreatUrlBuffTable(db,DbDatabuff)
         Write_buff(file_buff="Config.ini", settion=SearchDBName, info="restart", state=0)
         Write_buff(file_buff="Config.ini", settion=SearchDBName, info="startpage", state=1)
         Write_buff(file_buff="Config.ini", settion=SearchDBName, info="stopflag", state=0)
         Write_buff(file_buff="Config.ini", settion=SearchDBName, info="flag_get_all_url", state=0)
-    if int(Read_buff(file_buff="Config.ini", settion=SearchDBName, info='restart')) == 0:
+    if '0' in str(Read_buff(file_buff="Config.ini", settion=SearchDBName, info='restart')):
         db.upda_sql("Update `%s` set `State`=0 where `State`=10"%DbDatabuff)
     time.sleep(1)
 ex_dbname = Read_buff(file_buff="Config.ini", settion=SearchDBName, info='ex_dbname')
@@ -460,7 +461,7 @@ def ProcessMain():
     db = HCJ_MySQL()
     Wanfang = WanFangCrawler(db=db)
     init_main()
-    if int(Read_buff(file_buff="Config.ini", settion=SearchDBName, info='stopflag')) == 0:
+    if '0' in str(Read_buff(file_buff="Config.ini", settion=SearchDBName, info='stopflag')):
         main()
 #
 if __name__ == '__main__':

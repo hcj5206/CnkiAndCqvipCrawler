@@ -33,7 +33,7 @@ def CreatResultDBTable(db,TableName):
     CreatDBTableSql = '\
         CREATE TABLE IF NOT EXISTS `%s` (\
           `id` int(11) unsigned NOT NULL AUTO_INCREMENT,\
-          `url` varchar(200) DEFAULT NULL, \
+          `url` text DEFAULT NULL, \
           `title` varchar(200) DEFAULT NULL,\
           `authors` varchar(200) DEFAULT NULL,\
           `unit` text  DEFAULT NULL,\
