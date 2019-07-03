@@ -21,7 +21,7 @@ import re
 from HCJ_Buff_Control import Read_buff,Write_buff
 # 构造不同条件的关键词搜索
 from HCJ_DB_Helper import HCJ_MySQL
-from PublicDef import CreatResultDBTable, CreatUrlBuffTable, ShowStatePro
+from PublicDef import CreatResultDBTable, CreatUrlBuffTable, ShowStatePro, RemoveSpecialCharacter
 
 values = {
            '1': 'k',  # 标题
@@ -145,42 +145,52 @@ class ClockProcess(multiprocessing.Process):  # multiprocessing.Process产生的
 
 
 class WanFangCrawler:
-
-    def __init__(self,db,Input=None,SearchMode=None,StartTime=None,EndTime=None,StartPage=None,SettingPath='./Config.ini'):
+    def __init__(self, db, Input=None, SearchMode=None, StartTime=None, EndTime=None, StartPage=None, SettingPath='./Config.ini'):
         self.db = db
         self.SearchName = 'Wanfang'  # 万方
-        self.SettingPath = SettingPath # 配置文件地址
+        self.SettingPath = SettingPath  # 配置文件地址
         self._Perpage = 50  # 每页显示50
-        self._ResultDbTable='WanFangResult'
+        self._ResultDbTable = 'WanFangResult'
         self.running = False  # 标记程序是否正常运行
         self.further_url = list()
         if Input is None and SearchMode is None:
-            self.Input=Read_buff(file_buff=self.SettingPath,settion=self.SearchName,info='input') # 输入内容
-            self.SearchMode=Read_buff(file_buff=self.SettingPath,settion=self.SearchName,info='searchmode') # 模式选择
-            self.StartTime=Read_buff(file_buff=self.SettingPath,settion=self.SearchName,info='starttime') # 开始年份
-            self.EndTime=Read_buff(file_buff=self.SettingPath,settion=self.SearchName,info='endtime') # 结束年份
-            self.StartPage=Read_buff(file_buff=self.SettingPath,settion=self.SearchName,info='startpage') # 开始页数
-            self.MaxPage=Read_buff(file_buff=self.SettingPath,settion=self.SearchName,info='maxpage') # 开始页数
+            self.Input = Read_buff(file_buff=self.SettingPath, settion=self.SearchName, info='input')  # 输入内容
+            self.SearchMode = Read_buff(file_buff=self.SettingPath, settion=self.SearchName, info='searchmode')  # 模式选择
+            self.StartTime = Read_buff(file_buff=self.SettingPath, settion=self.SearchName, info='starttime')  # 开始年份
+            self.EndTime = Read_buff(file_buff=self.SettingPath, settion=self.SearchName, info='endtime')  # 结束年份
+            self.StartPage = Read_buff(file_buff=self.SettingPath, settion=self.SearchName, info='startpage')  # 开始页数
+            self.MaxPage = Read_buff(file_buff=self.SettingPath, settion=self.SearchName, info='maxpage')  # 开始页数
             self.title = Read_buff(file_buff=self.SettingPath, settion=SearchDBName, info='title')
             self.authors = Read_buff(file_buff=self.SettingPath, settion=SearchDBName, info='authors')
             self.keywords = Read_buff(file_buff=self.SettingPath, settion=SearchDBName, info='keywords')
-            self.unit = Read_buff(file_buff=self.SettingPath, settion=SearchDBName, info='unit')
+            self.publication = Read_buff(file_buff=self.SettingPath, settion=SearchDBName, info='unit')
+            self.BaseKeyword = ""
+            if RemoveSpecialCharacter(self.title) != "":
+                self.BaseKeyword = self.BaseKeyword + " 标题:" + self.title
+            if RemoveSpecialCharacter(self.authors) != "":
+                self.BaseKeyword = self.BaseKeyword + " 作者:" + self.authors
+            if RemoveSpecialCharacter(self.keywords) != "":
+                self.BaseKeyword = self.BaseKeyword + " 关键词:" + self.keywords
+            if RemoveSpecialCharacter(self.publication) != "":
+                self.BaseKeyword = self.BaseKeyword + " 作者单位:" + self.publication
+
         else:
             # Todo
             pass
 
     def GetBaseUrl(self):
-        if self.SearchMode == '1':
-            search_mode = '题名'
-        elif self.SearchMode == '2':
-            search_mode = '作者'
-        elif self.SearchMode == '3':
-            search_mode = '关键词'
-        else:
-            search_mode = '作者单位'
-        index_url1 = 'http://g.wanfangdata.com.cn/search/searchList.do?searchType=all&pageSize=50&searchWord='  # pageSize=20每页记录限制为50条
+        # if self.SearchMode == '1':
+        #     search_mode = '题名'
+        # elif self.SearchMode == '2':
+        #     search_mode = '作者'
+        # elif self.SearchMode == '3':
+        #     search_mode = '关键词'
+        # else:
+        #     search_mode = '作者单位'
+        index_url1 = 'http://g.wanfangdata.com.cn/search/searchList.do?searchType=all&pageSize=50&searchWord='  # pageSize=50每页记录限制为50条
         index_url2 = '&showType=detail&isHit=null&isHitUnit=&firstAuthor=false&rangeParame=all&navSearchType='
-        index_url = index_url1 + '(' + search_mode + ':' + self.Input + ') 起始年:' + self.StartTime + ' 结束年:' + self.EndTime + index_url2  # 搜索时加上时间限制
+        index_url = index_url1 + self.BaseKeyword + ' 起始年:' + self.StartTime + ' 结束年:' + self.EndTime + index_url2  # 搜索时加上时间限制
+        print(index_url)
         return index_url
 
     def GetMaxPage(self):
@@ -215,7 +225,6 @@ class WanFangCrawler:
         #       'http://211.101.154.105:9064', 'http://27.191.234.69:8252']
         # proxy_ip = random.choice(IP)
         # proxies = {'http': proxy_ip}  # proxy ip pool
-
         attempts = 0
         success = False
         while attempts < 20 and not success:
@@ -275,6 +284,9 @@ class WanFangCrawler:
         for i in range(len(url)):
             sql = "INSERT INTO `databuff` (`Url`, `source`) VALUES ('%s', '%s');\n" % (url[i], SearchDBName)
             row = self.db.insert(sql)
+            if not row['result']:
+                print('_'*40)
+                print(url[i])
 
     def GetFurtherPaper(self, _url, _soup):
         _Paper = InitDict()
@@ -409,7 +421,7 @@ def main():
     ClockProcess(1).start()  # 开始多线程，时间间隔为1秒
     PutUrlToList(Wanfang, 20)  # 往队列queue放20条数据，进不进
     LoopTimer(0.5, PutUrlToList, args=(Wanfang, 20,)).start()
-    LoopTimer(1, ShowStatePro,args=(db,SearchDBName)).start()
+    LoopTimer(1, ShowStatePro,args=(db,SearchDBName,DbDatabuff,Dbresult,)).start()
     # 生成N个采集线程
     req_thread = []
     for i in range(concurrent):
@@ -431,16 +443,17 @@ def main():
 def init_main():
     if int(Read_buff(file_buff="Config.ini", settion=SearchDBName, info='restart')) == 1:
         CreatResultDBTable(db, "result")
-        CreatUrlBuffTable(db, "databuff")
-        db.do_sql("TRUNCATE `databuff`;")
-        db.do_sql("TRUNCATE `result`;")
+        CreatUrlBuffTable(db,DbDatabuff)
         Write_buff(file_buff="Config.ini", settion=SearchDBName, info="restart", state=0)
         Write_buff(file_buff="Config.ini", settion=SearchDBName, info="startpage", state=1)
         Write_buff(file_buff="Config.ini", settion=SearchDBName, info="stopflag", state=0)
         Write_buff(file_buff="Config.ini", settion=SearchDBName, info="flag_get_all_url", state=0)
     if int(Read_buff(file_buff="Config.ini", settion=SearchDBName, info='restart')) == 0:
-        db.upda_sql("Update `databuff` set `State`=0 where `State`=10")
+        db.upda_sql("Update `%s` set `State`=0 where `State`=10"%DbDatabuff)
     time.sleep(1)
+ex_dbname = Read_buff(file_buff="Config.ini", settion=SearchDBName, info='ex_dbname')
+DbDatabuff="databuff"+str(ex_dbname)
+Dbresult="result"+str(ex_dbname)
 def ProcessMain():
     global db,Wanfang
     multiprocessing.freeze_support()  #

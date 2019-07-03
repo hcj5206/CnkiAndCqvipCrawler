@@ -64,4 +64,4 @@ if __name__ == '__main__':
     Input()
     ClockProcess(Cnki_main.ProcessMain).start()
     ClockProcess(Cqvip_main.ProcessMain).start()
-    # ClockProcess(Wanfang_main.ProcessMain).start()
+    ClockProcess(Wanfang_main.ProcessMain).start()
