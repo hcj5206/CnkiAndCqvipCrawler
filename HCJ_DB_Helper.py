@@ -23,7 +23,7 @@ DBPORT =Read_buff(file_buff="Config.ini", settion="DB",info='DBPORT')
 
 class HCJ_MySQL:
     pool = None
-    limit_count = 3  # 最低预启动数据库连接数量
+    limit_count = 5  # 最低预启动数据库连接数量
     def __init__(self,log=None,dbname=None,dbhost=None):
         if dbname is None:
             self._dbname = DBNAME

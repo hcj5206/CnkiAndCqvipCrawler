@@ -5,7 +5,7 @@
 # datetime:2019/6/19 9:27
 import argparse
 import multiprocessing
-
+import time
 from HCJ_Buff_Control import Write_buff
 DB_List={
         1:"Cnki",
@@ -23,7 +23,7 @@ class ClockProcess(multiprocessing.Process):
 def Input():
     # 参数化输入命令行
     parser = argparse.ArgumentParser(description="Spider for gourmet shops in meituan.")
-    parser.add_argument('-mode -m' , dest='mode', help='选择模式：1:Cnki 2:Cqvip 3:Wanfang 12：Cnki+Cqvip 123:All 默认1', default='1',type=str)
+    parser.add_argument('-mode -m' , dest='mode', help='选择模式：1:Cnki 2:Cqvip 3:Wanfang 12：Cnki+Cqvip 123:All 默认0', default='0',type=str)
     parser.add_argument('-restart -r', dest='restart', help='是否重新开始爬取 1 重新开始 0：继续 默认为0', default=0,type=int)
     parser.add_argument('-title -t', dest='title', help='title：标题', default='')
     parser.add_argument('-authors -a', dest='authors', help='authors：作者', default='')
@@ -62,6 +62,7 @@ def props(obj):
     return pr
 if __name__ == '__main__':
     mode =Input()
+    time.sleep(1)
     import Cnki_main
     import Cqvip_main
     import Wanfang_main

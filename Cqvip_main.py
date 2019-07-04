@@ -5,6 +5,7 @@
 # datetime:2019/6/19 9:43
 import argparse
 import queue
+import random
 import sys
 import threading
 from urllib.parse import quote
@@ -28,8 +29,8 @@ values = {
 }
 
 headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; WOW64; rv:23.0) Gecko/20100101 Firefox/23.0'}
-concurrent = 5  # 采集线程数
-conparse = 10  # 解析线程数
+concurrent = 10  # 采集线程数
+conparse = 5  # 解析线程数
 # 生成请求队列
 req_list = queue.Queue()
 # 生成数据队列 ，请求以后，响应内容放到数据队列里
@@ -58,7 +59,7 @@ class Parse(threading.Thread):
                     self.is_parse = False  # 设置解析为False
             # 判断是否继续解析
 
-            if self.is_parse or int(Read_buff(file_buff="Config.ini", settion=SearchDBName, info='stopflag')) == 0:  # 解析
+            if self.is_parse or '0' in (Read_buff(file_buff="Config.ini", settion=SearchDBName, info='stopflag')):  # 解析
                 try:
                     url, data = self.data_list.get(timeout=3)  # 从数据队列里提取一个数据
                 except Exception as e:  # 超时以后进入异常
@@ -91,13 +92,13 @@ class Crawl(threading.Thread):  # 采集线程类
         # 输出启动线程信息
         print('启动采集线程%d号' % self.number)
         # 如果请求队列不为空，则无限循环，从请求队列里拿请求url
-        while self.req_list.qsize() > 0 or int(
-                Read_buff(file_buff="Config.ini", settion=SearchDBName, info='stopflag')) == 0:
+        while self.req_list.qsize() > 0 or '0' in (
+                Read_buff(file_buff="Config.ini", settion=SearchDBName, info='stopflag')):
             # 从请求队列里提取url
             url = self.req_list.get()
             # print('%d号线程采集：%s' % (self.number, url))
             # 防止请求频率过快，随机设置阻塞时间
-            time.sleep(0.1)
+            time.sleep(random.randint(1, 10)/10)
             # 发起http请求，获取响应内容，追加到数据队列里，等待解析
             response = GetSoup(url)
             self.data_list.put([url, response])  # 向数据队列里追加
@@ -120,8 +121,6 @@ class Cqvip_Crawler:
         self._Perpage = 10  # 每页显示20
         self._ResultDbTable = 'CqvipResult'
         if Input is None and SearchMode is None:
-            self.Input = Read_buff(file_buff=self.SettingPath, settion=self.SearchName, info='input')  # 输入内容
-            self.SearchMode = Read_buff(file_buff=self.SettingPath, settion=self.SearchName, info='searchmode')  # 模式选择
             self.StartTime = Read_buff(file_buff=self.SettingPath, settion=self.SearchName, info='starttime')  # 开始年份
             self.EndTime = Read_buff(file_buff=self.SettingPath, settion=self.SearchName, info='endtime')  # 结束年份
             self.StartPage = Read_buff(file_buff=self.SettingPath, settion=self.SearchName, info='startpage')  # 开始页数
@@ -207,9 +206,10 @@ def InitDict():
 def GetSoup(url=None):
     try:
         req = urllib.request.Request(url=url, headers=headers)
-        html = urllib.request.urlopen(req,timeout=3).read()
+        request = urllib.request.urlopen(req, timeout=3)
+        html = request.read()
         soup = BeautifulSoup(html, 'lxml')
-    except:
+    except Exception as e:
         db.upda_sql("update `%s` set `State`=-15 where `Url`='%s'"%(DbDatabuff,url))
         print("Cqvip:出现一次连接失败")
         soup=False
@@ -233,6 +233,7 @@ def parse( url, _soup):
             # _Paper['type'] = deff2[1].text.split('【分　类】', 1)[1].split('【关键词】')[0].replace('\n', '')  # 获得【分类】
             _Paper['keywords'] = deff2[1].text.split('【关键词】', 1)[1].split('【出　处】')[0].replace('\n', '')  # 获得【关键词】
             StrComeFrom = deff2[1].text.split('【出　处】', 1)[1].split('【收　录】')[0].replace('\n', '')
+            StrComeFrom = changeChineseNumToArab(StrComeFrom)
             Strlist = re.split(r"[;,\s]\s*", StrComeFrom)
             t = 0
             for st in Strlist:
@@ -251,7 +252,7 @@ def parse( url, _soup):
             InsetDbbyDict("`crawler`.`%s`" % Dbresult, _Paper, db,DbDatabuff,Dbresult)
         except:
             db.upda_sql("update `%s` set `State`=-15 where `Url`='%s'" % (DbDatabuff,_Paper['url']))
-            print(_Paper['url'],_Paper['title'],"goup解析出现错误")
+            print(_Paper['url'],"goup解析出现错误")
         # print(_Paper)
 
 
@@ -321,12 +322,12 @@ def ProcessMain():
     Cqvip = Cqvip_Crawler(db=db)
     multiprocessing.freeze_support()  # 多进程打包的话必须加上
     init_main()
-    if int(Read_buff(file_buff="Config.ini", settion=SearchDBName, info='stopflag')) == 0:
+    if '0' in (Read_buff(file_buff="Config.ini", settion=SearchDBName, info='stopflag')) :
         main()
 if __name__ == '__main__':
    # ProcessMain()
    db = HCJ_MySQL()
    Cqvip = Cqvip_Crawler(db=db)
-   url="http://www.cqvip.com/%22/QK/96262X/201404/663135600.html%22"
+   url="http://www.cqvip.com/%22/QK/90168X/201802/674346277.html%22"
    g=GetSoup(url)
    parse(url,g)

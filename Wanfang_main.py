@@ -31,8 +31,8 @@ values = {
     }
 SearchDBName = 'Wanfang'
 headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; WOW64; rv:23.0) Gecko/20100101 Firefox/23.0'}
-concurrent = 5 # 采集线程数
-conparse = 10 # 解析线程数
+concurrent = 3 # 采集线程数
+conparse = 5 # 解析线程数
 renum = 0
 # 生成请求队列
 req_list = queue.Queue()
@@ -99,7 +99,7 @@ class Crawl(threading.Thread): #采集线程类
             url = self.req_list.get()
             # print('%d号线程采集：%s' % (self.number, url))
             # 防止请求频率过快，随机设置阻塞时间
-            time.sleep(random.randint(3, 5))
+            time.sleep(random.randint(30, 50)/10)
             # 发起http请求，获取响应内容，追加到数据队列里，等待解析
             response = Wanfang.VisitHtml(url)
             self.data_list.put([url, response])  # 向数据队列里追加
@@ -111,7 +111,7 @@ class Crawl(threading.Thread): #采集线程类
 
 
 def InitDict():
-    dir = {'url': '', 'title' :'','authors':'','unit' :'','publication' :'','keywords' :'','abstract' :'','year' :'','volume' :'','issue' :'','pagecode' :'','doi' :'','string' :'','sponser' :'','type' :''}
+    dir = {'url': '', 'title' :'','authors':'','unit' :'','publication' :'','keywords' :'','abstract' :'','year' :'','volume' :'','issue' :'','pagecode' :'','doi' :'','sponser' :'','type' :''}
     return dir
 
 
@@ -139,8 +139,6 @@ class WanFangCrawler:
         self.running = False  # 标记程序是否正常运行
         self.further_url = list()
         if Input is None and SearchMode is None:
-            self.Input = Read_buff(file_buff=self.SettingPath, settion=self.SearchName, info='input')  # 输入内容
-            self.SearchMode = Read_buff(file_buff=self.SettingPath, settion=self.SearchName, info='searchmode')  # 模式选择
             self.StartTime = Read_buff(file_buff=self.SettingPath, settion=self.SearchName, info='starttime')  # 开始年份
             self.EndTime = Read_buff(file_buff=self.SettingPath, settion=self.SearchName, info='endtime')  # 结束年份
             self.StartPage = Read_buff(file_buff=self.SettingPath, settion=self.SearchName, info='startpage')  # 开始页数
@@ -359,7 +357,7 @@ class WanFangCrawler:
 
                 _Paper['abstract'] = abstract.replace("'", "")
                 _Paper['type'] = literature_type
-                InsetDbbyDict("`crawler`.`%s`"%Dbresult, _Paper,DbDatabuff,Dbresult)
+                InsetDbbyDict("`crawler`.`%s`"%Dbresult, _Paper,db,DbDatabuff,Dbresult)
             except:
                 db.upda_sql("update `%s` set `State`=-15 where `Url`='%s'" % (DbDatabuff, _Paper['url']))
                 print(_Paper['url'], "goup解析出现错误")
@@ -450,6 +448,11 @@ def ProcessMain():
     init_main()
     if '0' in str(Read_buff(file_buff="Config.ini", settion=SearchDBName, info='stopflag')):
         main()
-#
+
 if __name__ == '__main__':
-    ProcessMain()
+    # ProcessMain()
+    db = HCJ_MySQL()
+    Wanfang = WanFangCrawler(db=db)
+    url = "http://g.wanfangdata.com.cn/details/detail.do?_type=perio&id=zhzz201806005"
+    g = Wanfang.VisitHtml(url)
+    Wanfang.GetFurtherPaper(url, g)

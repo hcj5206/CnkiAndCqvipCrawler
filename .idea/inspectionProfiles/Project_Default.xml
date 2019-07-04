@@ -5,6 +5,7 @@
       <option name="ignoredIdentifiers">
         <list>
           <option value="Exception.__getitem__" />
+          <option value="urllib.error" />
         </list>
       </option>
     </inspection_tool>
