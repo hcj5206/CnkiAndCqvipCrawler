@@ -29,8 +29,9 @@ values = {
 }
 
 headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; WOW64; rv:23.0) Gecko/20100101 Firefox/23.0'}
-concurrent = 10  # 采集线程数
-conparse = 5  # 解析线程数
+concurrent=int(Read_buff(file_buff="./Config.ini",settion='Setting',info='Cqvip_CollectNum').replace(' ',''))
+conparse=int(Read_buff(file_buff="./Config.ini",settion='Setting',info='Cqvip_parsenum').replace(' ',''))
+interval=int(Read_buff(file_buff="./Config.ini",settion='Setting',info='Cqvip_interval').replace(' ',''))
 # 生成请求队列
 req_list = queue.Queue()
 # 生成数据队列 ，请求以后，响应内容放到数据队列里
@@ -98,7 +99,7 @@ class Crawl(threading.Thread):  # 采集线程类
             url = self.req_list.get()
             # print('%d号线程采集：%s' % (self.number, url))
             # 防止请求频率过快，随机设置阻塞时间
-            time.sleep(random.randint(1, 10)/10)
+            time.sleep(random.randint(interval*10, (interval+2)*10)/10)
             # 发起http请求，获取响应内容，追加到数据队列里，等待解析
             response = GetSoup(url)
             self.data_list.put([url, response])  # 向数据队列里追加
@@ -206,12 +207,12 @@ def InitDict():
 def GetSoup(url=None):
     try:
         req = urllib.request.Request(url=url, headers=headers)
-        request = urllib.request.urlopen(req, timeout=3)
+        request = urllib.request.urlopen(req, timeout=8)
         html = request.read()
         soup = BeautifulSoup(html, 'lxml')
     except Exception as e:
         db.upda_sql("update `%s` set `State`=-15 where `Url`='%s'"%(DbDatabuff,url))
-        print("Cqvip:出现一次连接失败")
+        print("Cqvip：无效链接", str(e), url)
         soup=False
     return soup
 
@@ -248,8 +249,11 @@ def parse( url, _soup):
                         _Paper['pagecode'] = st.split('页')[0] if '页' in st else st  # 获得【页码】
                     if "期" in st:
                         _Paper['issue'] = re.search(r'\d+', st).group()  # 获得【期】
+            try:
+                InsetDbbyDict("`crawler`.`%s`" % Dbresult, _Paper, db,DbDatabuff,Dbresult)
+            except:
+                print(_Paper['url'], "插入失败")
 
-            InsetDbbyDict("`crawler`.`%s`" % Dbresult, _Paper, db,DbDatabuff,Dbresult)
         except:
             db.upda_sql("update `%s` set `State`=-15 where `Url`='%s'" % (DbDatabuff,_Paper['url']))
             print(_Paper['url'],"goup解析出现错误")
@@ -328,6 +332,6 @@ if __name__ == '__main__':
    # ProcessMain()
    db = HCJ_MySQL()
    Cqvip = Cqvip_Crawler(db=db)
-   url="http://www.cqvip.com/%22/QK/90168X/201802/674346277.html%22"
+   url="http://www.cqvip.com/%22/QK/93044X/201502/663996428.html%22"
    g=GetSoup(url)
    parse(url,g)

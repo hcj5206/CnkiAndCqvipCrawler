@@ -9,7 +9,6 @@ import pymysql as MySQLdb
 
 
 from DBUtils.PooledDB import PooledDB
-
 from HCJ_Buff_Control import Read_buff
 
 
@@ -19,11 +18,12 @@ DBUSER = Read_buff(file_buff="Config.ini", settion="DB",info='DBUSER')
 DBPWD = Read_buff(file_buff="Config.ini", settion="DB",info='DBPWD')
 DBCHARSET =Read_buff(file_buff="Config.ini", settion="DB",info='DBCHARSET')
 DBPORT =Read_buff(file_buff="Config.ini", settion="DB",info='DBPORT')
+limit_count1 =Read_buff(file_buff="Config.ini", settion="DB",info='limit_count')
 
 
 class HCJ_MySQL:
     pool = None
-    limit_count = 5  # 最低预启动数据库连接数量
+    limit_count = int(limit_count1.replace(" ",""))  # 最低预启动数据库连接数量
     def __init__(self,log=None,dbname=None,dbhost=None):
         if dbname is None:
             self._dbname = DBNAME

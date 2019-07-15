@@ -6,6 +6,7 @@
 import argparse
 import multiprocessing
 import time
+import lxml
 from HCJ_Buff_Control import Write_buff
 DB_List={
         1:"Cnki",

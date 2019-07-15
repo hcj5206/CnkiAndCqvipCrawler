@@ -24,8 +24,10 @@ SearchDBName="Cnki"
 
 from PublicDef import *
 headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; WOW64; rv:23.0) Gecko/20100101 Firefox/23.0'}
-concurrent = 10 # 采集线程数
-conparse = 5 # 解析线程数
+
+concurrent=int(Read_buff(file_buff="./Config.ini",settion='Setting',info='Cnki_CollectNum').replace(' ',''))
+conparse=int(Read_buff(file_buff="./Config.ini",settion='Setting',info='Cnki_parsenum').replace(' ',''))
+interval=int(Read_buff(file_buff="./Config.ini",settion='Setting',info='Cnki_interval').replace(' ',''))
 # 生成请求队列
 req_list = queue.Queue()
 # 生成数据队列 ，请求以后，响应内容放到数据队列里
@@ -58,7 +60,7 @@ class Cnki_Crawler:
             pass
     def GetMaxPage(self):
 
-        index_url = 'http://search.cnki.com.cn/Search.aspx?q=' + quote(self.BaseKeyword)  # quote方法把汉字转换为encodeuri?
+        index_url = 'http://search.cnki.com.cn/Search.aspx?q=%s' % quote(self.BaseKeyword)  # quote方法把汉字转换为encodeuri?
         try:
             print("GetMaxPage",index_url)
             soup = GetSoup(url=index_url)
@@ -83,6 +85,7 @@ class Cnki_Crawler:
             time.sleep(1)
         Write_buff(file_buff="Config.ini",settion=SearchDBName,info="flag_get_all_url",state=1)
         print(time.time()-t)
+        sys.exit(0)
     def WriteUrlIntoDB(self,page_url,page):
 
         soup = GetSoup(url=page_url)
@@ -168,7 +171,7 @@ class Crawl(threading.Thread): #采集线程类
             url = self.req_list.get()
             # print('Cnki：%d号线程采集：%s' % (self.number, url))
             # 防止请求频率过快，随机设置阻塞时间
-            time.sleep(random.randint(1, 50)/10)
+            time.sleep(random.randint(interval*10,(interval+2)*10)/10)
             # 发起http请求，获取响应内容，追加到数据队列里，等待解析
             response = GetSoup(url)
             # print(url)
@@ -182,6 +185,7 @@ class ClockProcess(multiprocessing.Process):
         _Cqvip = Cnki_Crawler(db=_db)
         _Cqvip.WriteAllUrlIntoDBMain()
         print("Cnki：获取全部url结束")
+
 def Up_division_int(A, B):
     '''
      向上整除
@@ -205,13 +209,12 @@ def PutUrlToList(Cnki,num):
 def GetSoup(url=None):
     try:
         req = urllib.request.Request(url=url, headers=headers)
-        request = urllib.request.urlopen(req,timeout=3)
+        request = urllib.request.urlopen(req,timeout=8)
         html=request.read()
         soup = BeautifulSoup(html, 'lxml')
-    except urllib.error.URLError as e:
-        print(e.reason)
+    except Exception as e:
         db.upda_sql("update `%s` set `State`=-15 where `Url`='%s'"%(DbDatabuff,url))
-        print("Cnki：出现一次连接失败",url)
+        print("Cnki：无效链接",str(e),url)
         soup=False
     return soup
 def parse(url,_soup):
@@ -295,10 +298,11 @@ def ProcessMain():
     if '0'in str(Read_buff(file_buff="Config.ini", settion=SearchDBName, info='stopflag')) :
         main()
 
+
 if __name__ == '__main__':
-    db = HCJ_MySQL()
-    Cnki = Cnki_Crawler(db=db)
-    url="http://cpfd.cnki.com.cn/Article/CPFDTOTAL-DNZX200303001010.htm"
-    g=GetSoup(url)
-    parse(url,g)
-    # ProcessMain()
+    # db = HCJ_MySQL()
+    # Cnki = Cnki_Crawler(db=db)
+    # url="http://www.cnki.com.cn/Article/CJFDTOTAL-ZNGY201106065.htm"
+    # g=GetSoup(url)
+    # parse(url,g)
+    ProcessMain()

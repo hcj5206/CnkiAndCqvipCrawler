@@ -39,5 +39,6 @@ def Read_buff(file_buff="Config.ini", settion="info", info=None):
 
 
 if __name__ == '__main__':
-    print(Read_buff(file_buff="Config.ini", settion="DB",info='DBNAME'))
+    a=Read_buff(file_buff="./Config.ini",settion='Setting',info='Cnki_interval').replace(' ','')
+    print(a)
     pass

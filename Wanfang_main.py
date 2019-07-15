@@ -31,8 +31,11 @@ values = {
     }
 SearchDBName = 'Wanfang'
 headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; WOW64; rv:23.0) Gecko/20100101 Firefox/23.0'}
-concurrent = 3 # 采集线程数
-conparse = 5 # 解析线程数
+# concurrent = 3 # 采集线程数
+# conparse = 5 # 解析线程数
+concurrent=int(Read_buff(file_buff="./Config.ini",settion='Setting',info='Wanfang_CollectNum').replace(' ',''))
+conparse=int(Read_buff(file_buff="./Config.ini",settion='Setting',info='Wanfang_parsenum').replace(' ',''))
+interval=int(Read_buff(file_buff="./Config.ini",settion='Setting',info='Wanfang_interval').replace(' ',''))
 renum = 0
 # 生成请求队列
 req_list = queue.Queue()
@@ -99,7 +102,7 @@ class Crawl(threading.Thread): #采集线程类
             url = self.req_list.get()
             # print('%d号线程采集：%s' % (self.number, url))
             # 防止请求频率过快，随机设置阻塞时间
-            time.sleep(random.randint(30, 50)/10)
+            time.sleep(random.randint(interval*10, (interval+2)*10)/10)
             # 发起http请求，获取响应内容，追加到数据队列里，等待解析
             response = Wanfang.VisitHtml(url)
             self.data_list.put([url, response])  # 向数据队列里追加

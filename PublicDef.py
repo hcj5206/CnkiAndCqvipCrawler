@@ -3,9 +3,13 @@
 # author:hcj
 # @File    : PublicDef.py
 # datetime:2019/6/27 19:59
+import os
 import re
 import sys
+import threading
 import time
+
+import psutil as psutil
 
 from HCJ_Buff_Control import Read_buff, Write_buff
 
@@ -15,7 +19,7 @@ def CreatUrlBuffTable(db,TableName):
             CREATE TABLE IF NOT EXISTS `%s` (\
             `Index` int(11) unsigned NOT NULL AUTO_INCREMENT,\
             `Url` VARCHAR(255) DEFAULT NULL,\
-            `State` INT(11) NULL DEFAULT \'0\'  COMMENT \'-5 日期不对 -10 出现错误 0 初始 10 处理中 20 处理结束\',\
+            `State` INT(11) NULL DEFAULT \'0\'  COMMENT \'-5 日期不对 -10 出现错误 -15 无效链接 0 初始 10 处理中 20 处理结束\',\
             `Datetime` DATETIME NULL DEFAULT CURRENT_TIMESTAMP,\
             `Source` VARCHAR(200) NULL DEFAULT NULL,\
             UNIQUE INDEX `Url` (`Url`),\
@@ -59,11 +63,13 @@ def RemoveSpecialCharacter(str1):
     string1 = cop.sub('', str(str1))  # 将string1中匹配到的字符替换成空字符
     return string1
 def InsetDbbyDict(table,Dict,db,DbDatabuff,Dbresult):
+
     COLstr = ''  # 列的字段
     ROWstr = ''  # 行字段
     SearchDbname=""
     for key in list(Dict.keys()):
         Dict[key]=Dict[key].replace('\n','').replace('\"',"#").replace('\t',"").replace('\r',"").replace('\xa0',"").replace('%', ">").replace('\'', "^")
+    Dict['publication']=Dict['publication'].replace('《','').replace('》','')
     for key in Dict.keys():
         COLstr = COLstr + ' ' + '`' + key + '`,'
         ROWstr = (ROWstr + '"%s"' + ',') % str(Dict[key])
@@ -80,12 +86,11 @@ def InsetDbbyDict(table,Dict,db,DbDatabuff,Dbresult):
     result_count=db.do_sql_one(sql_select)
     if  result_count[0]==0 or result_count[0]=='0':
         result_dic=db.insert(sql)
-
         if  result_dic['result']:#
             db.upda_sql(sql_update)
         else:
             print(result_dic['err'])
-            db.upda_sql("Update `%s` set `State`=-10 where `Url`='%s' "%(DbDatabuff,str(Dict['url'])))
+            db.upda_sql("Update `%s` set `State`=-15 where `Url`='%s' "%(DbDatabuff,str(Dict['url'])))
     else:
         str1=""
         for key in list(Dict.keys()):
@@ -118,9 +123,7 @@ def ShowStatePro(db,SearchDBName,DbDatabuff,Dbresult):
         Write_buff(file_buff="Config.ini", settion=SearchDBName, info="stopflag", state=1)
         time.sleep(5)
         print("%s：爬取结束"%SearchDBName)
-        sys.exit()
-
-
+        sys.exit(0)
 common_used_numerals_tmp = {'零': 0, '一': 1, '二': 2, '两': 2, '三': 3, '四': 4, '五': 5, '六': 6, '七': 7, '八': 8, '九': 9,
                             '十': 10, '百': 100, '千': 1000, '万': 10000, '亿': 100000000}
 common_used_numerals = {}
