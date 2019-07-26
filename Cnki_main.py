@@ -9,9 +9,7 @@ import sys
 import threading
 from urllib.parse import quote
 import multiprocessing
-
 import math
-
 from HCJ_py_timer import LoopTimer
 import urllib.request
 from bs4 import BeautifulSoup
@@ -100,7 +98,7 @@ class Cnki_Crawler:
                 row = self.db.insert(sql) # 插入
 
 
-    def GetUrlFromDb(self,num=20):
+    def GetUrlFromDb(self,num=10):
         sql="select `Index`,`Url` from `%s` where `State`in (0,-10) and `Source`='%s'  limit %s "%(DbDatabuff,SearchDBName,num)
         _rows=self.db.do_sql(sql)
         if _rows:
@@ -136,7 +134,6 @@ class Parse(threading.Thread):
 
             if self.is_parse or '0'in (Read_buff(file_buff="Config.ini", settion=SearchDBName,info='stopflag')):  # 解析
                 try:
-
                     url,data = self.data_list.get(timeout=3)  # 从数据队列里提取一个数据
                 except Exception as e:  # 超时以后进入异常
                     data = None

@@ -332,6 +332,6 @@ if __name__ == '__main__':
    # ProcessMain()
    db = HCJ_MySQL()
    Cqvip = Cqvip_Crawler(db=db)
-   url="http://www.cqvip.com/%22/QK/93044X/201502/663996428.html%22"
+   url="http://www.cqvip.com/%22/QK/93419A/200901/29132001.html%22"
    g=GetSoup(url)
    parse(url,g)
