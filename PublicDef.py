@@ -185,5 +185,7 @@ def changeChineseNumToArab(oriStr):
         resultNum = chinese2digits(numberStr)
         aProStr += str(resultNum)
     return aProStr
+
 if __name__ == '__main__':
-    print(changeChineseNumToArab("第二十四期"))
+    str1=u"我爱你中国123456Zsdfsdf"
+

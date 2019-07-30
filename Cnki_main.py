@@ -33,7 +33,6 @@ data_list = queue.Queue()
 class Cnki_Crawler:
     def __init__(self,db,Input=None,SearchMode=None,StartTime=None,EndTime=None,StartPage=None,SettingPath='./Config.ini'):
         self.db=db
-       
         self.SettingPath=SettingPath # 配置文件地址
         if  Input is None and SearchMode is None:
             self.StartTime=Read_buff(file_buff=self.SettingPath,settion=SearchDBName,info='starttime') # 开始年份
